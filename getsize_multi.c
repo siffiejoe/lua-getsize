@@ -1,7 +1,14 @@
 #define LUA_CORE
 #include <lua.h>
 
-#if LUA_VERSION_NUM == 502
+#if LUA_VERSION_NUM == 503
+
+#  include "lua5.3/lobject.h"
+#  include "lua5.3/lstate.h"
+#  include "lua5.3/lstring.h"
+#  include "lua5.3/lfunc.h"
+
+#elif LUA_VERSION_NUM == 502
 
 #  include "lua5.2/lobject.h"
 #  include "lua5.2/lstate.h"

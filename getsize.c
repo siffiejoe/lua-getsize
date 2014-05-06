@@ -23,7 +23,8 @@
 
 #if LUA_VERSION_NUM == 501
 #define ARG(L, n) (((L)->base+(n))-1)
-#elif LUA_VERSION_NUM == 502
+#elif LUA_VERSION_NUM == 502 || \
+      LUA_VERSION_NUM == 503
 #define ARG(L, n) ((L)->ci->func+(n))
 #endif
 
@@ -46,7 +47,8 @@ int debug_getsize(lua_State* L)
                            sizeLclosureWithUpvalues(cl->l.nupvalues));
       break;
     }
-#elif LUA_VERSION_NUM == 502
+#elif LUA_VERSION_NUM == 502 || \
+      LUA_VERSION_NUM == 503
     case LUA_TLCL: { /* Lua closure */
       Closure *cl = clvalue(o);
       lua_pushinteger(L, sizeLclosureWithUpvalues(cl->l.nupvalues));
@@ -69,7 +71,8 @@ int debug_getsize(lua_State* L)
                                  sizeof(CallInfo) * th->size_ci);
       break;
     }
-#elif LUA_VERSION_NUM == 502
+#elif LUA_VERSION_NUM == 502 || \
+      LUA_VERSION_NUM == 503
     case LUA_TTHREAD: {
       lua_State *th = thvalue(o);
       CallInfo *ci = th->base_ci.next;
@@ -89,13 +92,20 @@ int debug_getsize(lua_State* L)
       lua_pushinteger(L, sizeof(void*));
       break;
     }
-#if LUA_VERSION_NUM == 502
+#if LUA_VERSION_NUM == 502 || \
+    LUA_VERSION_NUM == 503
     case LUA_TLNGSTR: /* fall through */
 #endif
     case LUA_TSTRING: {
       lua_pushinteger(L, sizestring(tsvalue(o)));
       break;
     }
+#if LUA_VERSION_NUM == 503
+    case LUA_TNUMINT: {
+      lua_pushinteger(L, sizeof(lua_Integer));
+      break;
+    }
+#endif
     case LUA_TNUMBER: {
       lua_pushinteger(L, sizeof(lua_Number));
       break;
@@ -111,16 +121,16 @@ int debug_getsize(lua_State* L)
 
 int luaopen_getsize(lua_State* L)
 {
-	lua_settop(L, 0);
-	lua_getglobal(L, "debug");
-	lua_createtable(L, 0, 0); /* to get dummynode pointer */
-	lua_pushlightuserdata(L, hvalue(ARG(L,2))->node);
-	lua_pushcclosure(L, debug_getsize, 1);
-	lua_replace(L, -2); /* remove dummy table */
-	if (lua_type(L, 1) == LUA_TTABLE) {
-		lua_pushvalue(L, -1);
-		lua_setfield(L, 1, "getsize");
-	}
-	return 1;
+  lua_settop(L, 0);
+  lua_getglobal(L, "debug");
+  lua_createtable(L, 0, 0); /* to get dummynode pointer */
+  lua_pushlightuserdata(L, hvalue(ARG(L,2))->node);
+  lua_pushcclosure(L, debug_getsize, 1);
+  lua_replace(L, -2); /* remove dummy table */
+  if (lua_type(L, 1) == LUA_TTABLE) {
+    lua_pushvalue(L, -1);
+    lua_setfield(L, 1, "getsize");
+  }
+  return 1;
 }
 

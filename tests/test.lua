@@ -17,6 +17,10 @@ local th = coroutine.create( function() f2() end )
 coroutine.resume( th )
 
 
+print( "2.5", size( 2.5 ) )
+print( "300", size( 300 ) )
+print( "true", size( true ) )
+print( "false", size( false ) )
 print( "{}", size( {} ) )
 print( "{ 1 }", size( { 1 } ) )
 print( "{ 1, 2 }", size( { 1, 2 } ) )
