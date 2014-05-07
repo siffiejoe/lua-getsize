@@ -114,6 +114,10 @@ int debug_getsize(lua_State* L)
       lua_pushinteger(L, sizeof(int));
       break;
     }
+    case LUA_TNIL: {
+      lua_pushinteger(L, 0);
+      break;
+    }
     default: return 0;
   }
   return 1;

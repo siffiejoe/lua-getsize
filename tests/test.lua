@@ -17,6 +17,7 @@ local th = coroutine.create( function() f2() end )
 coroutine.resume( th )
 
 
+print( "nil", size( nil ) )
 print( "2.5", size( 2.5 ) )
 print( "300", size( 300 ) )
 print( "true", size( true ) )
