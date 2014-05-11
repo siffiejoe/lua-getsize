@@ -2,7 +2,7 @@ package="getsize"
 version="scm-0"
 
 source = {
-  url = "${SRCURL}",
+  url = "git://github.com/siffiejoe/lua-getsize.git",
 }
 
 description = {
