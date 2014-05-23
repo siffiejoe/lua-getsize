@@ -8,17 +8,11 @@
 #include <stdio.h>
 
 #include <lua.h>
+#include <lauxlib.h>
 #include <lstate.h>
 #include <lobject.h>
 #include <lfunc.h>
 #include <lstring.h>
-
-
-/* the macro defined in lfunc.h does not count upvalues */
-#define sizeLclosureWithUpvalues(n) \
-  (cast(int, sizeof(LClosure)) - \
-   cast(int, sizeof(UpVal*)) + \
-   cast(int, (sizeof(UpVal*)+sizeof(UpVal))*(n)))
 
 
 #if LUA_VERSION_NUM == 501
@@ -29,10 +23,42 @@
 #endif
 
 
-int debug_getsize(lua_State* L)
+static size_t sizeProto(Proto const *p)
 {
-  Node const* dummynode = lua_touserdata(L, lua_upvalueindex(1));
-  TValue* o = ARG( L, 1 );
+  return sizeof(Proto) + sizeof(Instruction) * p->sizecode +
+                         sizeof(Proto*) * p->sizep +
+                         sizeof(TValue) * p->sizek +
+                         sizeof(int) * p->sizelineinfo +
+                         sizeof(LocVar) * p->sizelocvars +
+#if LUA_VERSION_NUM == 501
+                         sizeof(TString*) * p->sizeupvalues;
+#elif LUA_VERSION_NUM == 502 || \
+      LUA_VERSION_NUM == 503
+                         sizeof(Upvaldesc) * p->sizeupvalues;
+#endif
+}
+
+
+static int debug_getsize(lua_State *L)
+{
+  Node const *dummynode = lua_touserdata(L, lua_upvalueindex(1));
+  TValue *o = ARG(L, 1);
+  size_t olen = 0;
+  char const *options = luaL_optlstring(L, 2, "", &olen);
+  int count_upvalues = 1;
+  int count_protos = 0;
+  size_t i = 0;
+  for (i = 0; i < olen; ++i) {
+    switch (options[i]) {
+      case 'p': count_protos = 1; break;
+      case 'P': count_protos = 0; break;
+      case 'u': count_upvalues = 1; break;
+      case 'U': count_upvalues = 0; break;
+      default:
+        luaL_error(L, "unkown option for 'getsize': %c", (int)options[i]);
+        break;
+    }
+  }
   switch (ttype(o)) {
     case LUA_TTABLE: {
       Table *h = hvalue(o);
@@ -43,15 +69,21 @@ int debug_getsize(lua_State* L)
 #if LUA_VERSION_NUM == 501
     case LUA_TFUNCTION: {
       Closure *cl = clvalue(o);
-      lua_pushinteger(L, (cl->c.isC) ? sizeCclosure(cl->c.nupvalues) :
-                           sizeLclosureWithUpvalues(cl->l.nupvalues));
+      if (cl->c.isC)
+        lua_pushinteger(L, sizeCclosure(cl->c.nupvalues));
+      else
+        lua_pushinteger(L, sizeLclosure(cl->l.nupvalues) +
+                           (count_upvalues ? cl->l.nupvalues * sizeof(UpVal) : 0) +
+                           (count_protos ? sizeProto(cl->l.p) : 0));
       break;
     }
 #elif LUA_VERSION_NUM == 502 || \
       LUA_VERSION_NUM == 503
     case LUA_TLCL: { /* Lua closure */
       Closure *cl = clvalue(o);
-      lua_pushinteger(L, sizeLclosureWithUpvalues(cl->l.nupvalues));
+      lua_pushinteger(L, sizeLclosure(cl->l.nupvalues) +
+                         (count_upvalues ? cl->l.nupvalues * sizeof(UpVal) : 0) +
+                         (count_protos ? sizeProto(cl->l.p) : 0));
       break;
     }
     case LUA_TLCF: { /* light C function */
@@ -68,7 +100,7 @@ int debug_getsize(lua_State* L)
     case LUA_TTHREAD: {
       lua_State *th = thvalue(o);
       lua_pushinteger(L, sizeof(lua_State) + sizeof(TValue) * th->stacksize +
-                                 sizeof(CallInfo) * th->size_ci);
+                         sizeof(CallInfo) * th->size_ci);
       break;
     }
 #elif LUA_VERSION_NUM == 502 || \

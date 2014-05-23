@@ -13,6 +13,18 @@ local function f2()
   f1()
 end
 
+local function f3()
+  return
+end
+
+local function f4()
+  return size
+end
+
+local function f5()
+  return size, dummy
+end
+
 local th = coroutine.create( function() f2() end )
 coroutine.resume( th )
 
@@ -31,9 +43,15 @@ print( "{ x=1, y=2, z=3 }", size( { x=1, y=2, z=3 } ) )
 print( "io.stdout", size( io.stdout ) )
 print( "print", size( print ) )
 print( "size", size( size ) )
-print( "[0 upvalues]", size( function() return end ) )
-print( "[1 upvalue]", size( function() return size end ) )
-print( "[2 upvalues]", size( function() return size, dummy end ) )
+print( "[0 upvalues]", size( f3 ) )
+print( "[1 upvalue]", size( f4 ) )
+print( "[2 upvalues]", size( f5 ) )
+print( "[0 upvalues(U)]", size( f3, "U" ) )
+print( "[1 upvalue(U)]", size( f4, "U" ) )
+print( "[2 upvalues(U)]", size( f5, "U" ) )
+print( "[0 upvalues(p)]", size( f3, "p" ) )
+print( "[1 upvalue(p)]", size( f4, "p" ) )
+print( "[2 upvalues(p)]", size( f5, "p" ) )
 print( "[used thread]", size( th ) )
 th = coroutine.create( function() end )
 print( "[new thread]", size( th ) )
