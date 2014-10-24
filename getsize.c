@@ -30,12 +30,7 @@ static size_t sizeProto(Proto const *p)
                          sizeof(TValue) * p->sizek +
                          sizeof(int) * p->sizelineinfo +
                          sizeof(LocVar) * p->sizelocvars +
-#if LUA_VERSION_NUM == 501
-                         sizeof(TString*) * p->sizeupvalues;
-#elif LUA_VERSION_NUM == 502 || \
-      LUA_VERSION_NUM == 503
-                         sizeof(Upvaldesc) * p->sizeupvalues;
-#endif
+                         sizeof(*(p->upvalues)) * p->sizeupvalues;
 }
 
 
