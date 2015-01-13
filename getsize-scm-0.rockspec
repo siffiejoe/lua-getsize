@@ -9,8 +9,8 @@ description = {
   summary = "Calculates the size of a Lua object.",
   detailed = [[
     Calculates the size of a Lua object by poking in the Lua
-    internals. Works for PUC-Rio Lua 5.1 and 5.2, but _not_
-    for LuaJIT.
+    internals. Works for PUC-Rio Lua 5.1, 5.2, and 5.3, but
+    _not_ for LuaJIT.
   ]],
   homepage = "http://code.matthewwild.co.uk/lua-getsize/",
   license = "MIT/X11, MIT",
@@ -18,8 +18,8 @@ description = {
 }
 
 dependencies = {
-  -- Uses Lua internals. Includes support for Lua 5.1 *and* Lua 5.2.
-  "lua >= 5.1, < 5.3"
+  -- Uses Lua internals. Includes support for Lua 5.1, 5.2, and 5.3.
+  "lua >= 5.1, < 5.4"
 }
 
 build = {
