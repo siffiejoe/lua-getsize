@@ -23,6 +23,20 @@
 #endif
 
 
+typedef size_t (*sizeTableFunc)(Table const*, Node const*);
+static size_t sizeTableA(Table const *h, Node const *dummynode)
+{
+  return sizeof(Table) + sizeof(TValue) * h->sizearray +
+         sizeof(Node) * (h->node == dummynode ? 0 : sizenode(h));
+}
+
+typedef Node *(*tableNodeFunc)(Table const*);
+static Node *tableNodeA(Table const *h) {
+  return h->node;
+}
+
+
+
 static size_t sizeProto(Proto const *p)
 {
   return sizeof(Proto) + sizeof(Instruction) * p->sizecode +
@@ -43,6 +57,16 @@ static int debug_getsize(lua_State *L)
   int count_upvalues = 1;
   int count_protos = 0;
   size_t i = 0;
+  sizeTableFunc sizeTable = sizeTableA;
+#if LUA_VERSION_NUM == 502
+  /* Lua 5.2.4 changed the layout of Tables, and we don't have a way
+   * to check the release number from the C preprocessor, so we need
+   * some hackery to select the correct object layout for tables.
+   */
+  extern size_t sizeTableB(Table const*, Node const*);
+  if( LUA_VERSION_RELEASE[0] < '4' )
+    sizeTable = sizeTableB;
+#endif
   for (i = 0; i < olen; ++i) {
     switch (options[i]) {
       case 'p': count_protos = 1; break;
@@ -57,8 +81,7 @@ static int debug_getsize(lua_State *L)
   switch (ttype(o)) {
     case LUA_TTABLE: {
       Table *h = hvalue(o);
-      lua_pushinteger(L, sizeof(Table) + sizeof(TValue) * h->sizearray +
-                         sizeof(Node) * (h->node == dummynode ? 0 : sizenode(h)));
+      lua_pushinteger(L, sizeTable(h, dummynode));
       break;
     }
 #if LUA_VERSION_NUM == 501
@@ -152,10 +175,20 @@ static int debug_getsize(lua_State *L)
 
 int luaopen_getsize(lua_State* L)
 {
+  tableNodeFunc tableNode = tableNodeA;
+#if LUA_VERSION_NUM == 502
+  /* Lua 5.2.4 changed the layout of Tables, and we don't have a way
+   * to check the release number from the C preprocessor, so we need
+   * some hackery to select the correct object layout for tables.
+   */
+  extern Node *tableNodeB(Table const*);
+  if( LUA_VERSION_RELEASE[0] < '4' )
+    tableNode = tableNodeB;
+#endif
   lua_settop(L, 0);
   lua_getglobal(L, "debug");
   lua_createtable(L, 0, 0); /* to get dummynode pointer */
-  lua_pushlightuserdata(L, hvalue(ARG(L,2))->node);
+  lua_pushlightuserdata(L, tableNode(hvalue(ARG(L,2))));
   lua_pushcclosure(L, debug_getsize, 1);
   lua_replace(L, -2); /* remove dummy table */
   if (lua_type(L, 1) == LUA_TTABLE) {

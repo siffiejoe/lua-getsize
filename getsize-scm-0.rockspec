@@ -27,7 +27,8 @@ build = {
   modules = {
     getsize = {
       sources = {
-        "getsize_multi.c"
+        "getsize_multi.c",
+        "layout523.c",
       },
       incdirs = {
         "dummy"
