@@ -29,6 +29,7 @@ build = {
       sources = {
         "getsize_multi.c",
         "layout523.c",
+        "layout530.c",
       },
       incdirs = {
         "dummy"

@@ -23,6 +23,12 @@
 #endif
 
 
+typedef size_t (*sizeStringFunc)(TString const*);
+static size_t sizeStringA(TString const* s)
+{
+  return sizelstring(tsslen(s));
+}
+
 typedef size_t (*sizeTableFunc)(Table const*, Node const*);
 static size_t sizeTableA(Table const *h, Node const *dummynode)
 {
@@ -58,14 +64,28 @@ static int debug_getsize(lua_State *L)
   int count_protos = 0;
   size_t i = 0;
   sizeTableFunc sizeTable = sizeTableA;
+  sizeStringFunc sizeString = sizeStringA;
 #if LUA_VERSION_NUM == 502
   /* Lua 5.2.4 changed the layout of Tables, and we don't have a way
    * to check the release number from the C preprocessor, so we need
    * some hackery to select the correct object layout for tables.
    */
-  extern size_t sizeTableB(Table const*, Node const*);
-  if( LUA_VERSION_RELEASE[0] < '4' )
-    sizeTable = sizeTableB;
+  {
+    extern size_t sizeTableB(Table const*, Node const*);
+    if( LUA_VERSION_RELEASE[0] < '4' )
+      sizeTable = sizeTableB;
+  }
+#endif
+#if LUA_VERSION_NUM == 503
+  /* Lua 5.3.1 changed the layout of Strings, and we don't have a way
+   * to check the release number from the C preprocessor, so we need
+   * some hackery to select the correct object layout for strings.
+   */
+  {
+    extern size_t sizeStringB(TString const*);
+    if( LUA_VERSION_RELEASE[0] < '1' )
+      sizeString = sizeStringB;
+  }
 #endif
   for (i = 0; i < olen; ++i) {
     switch (options[i]) {
@@ -147,7 +167,7 @@ static int debug_getsize(lua_State *L)
     case LUA_TLNGSTR: /* fall through */
 #endif
     case LUA_TSTRING: {
-      lua_pushinteger(L, sizestring(tsvalue(o)));
+      lua_pushinteger(L, sizeString(tsvalue(o)));
       break;
     }
 #if LUA_VERSION_NUM == 503
@@ -181,9 +201,11 @@ int luaopen_getsize(lua_State* L)
    * to check the release number from the C preprocessor, so we need
    * some hackery to select the correct object layout for tables.
    */
-  extern Node *tableNodeB(Table const*);
-  if( LUA_VERSION_RELEASE[0] < '4' )
-    tableNode = tableNodeB;
+  {
+    extern Node *tableNodeB(Table const*);
+    if( LUA_VERSION_RELEASE[0] < '4' )
+      tableNode = tableNodeB;
+  }
 #endif
   lua_settop(L, 0);
   lua_getglobal(L, "debug");
