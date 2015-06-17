@@ -23,10 +23,15 @@
 #endif
 
 
-typedef size_t (*sizeStringFunc)(TString const*);
-static size_t sizeStringA(TString const* s)
+typedef size_t (*sizeStringFunc)(TValue const*);
+static size_t sizeStringA(TValue const* v)
 {
-  return sizelstring(tsslen(s));
+#if LUA_VERSION_NUM == 501 || \
+    LUA_VERSION_NUM == 502
+  return sizestring(tsvalue(v));
+#elif LUA_VERSION_NUM == 503 /* actually 5.3.1+ */
+  return sizelstring(tsslen(tsvalue(v)));
+#endif
 }
 
 typedef size_t (*sizeTableFunc)(Table const*, Node const*);
@@ -82,7 +87,7 @@ static int debug_getsize(lua_State *L)
    * some hackery to select the correct object layout for strings.
    */
   {
-    extern size_t sizeStringB(TString const*);
+    extern size_t sizeStringB(TValue const*);
     if( LUA_VERSION_RELEASE[0] < '1' )
       sizeString = sizeStringB;
   }
@@ -167,7 +172,7 @@ static int debug_getsize(lua_State *L)
     case LUA_TLNGSTR: /* fall through */
 #endif
     case LUA_TSTRING: {
-      lua_pushinteger(L, sizeString(tsvalue(o)));
+      lua_pushinteger(L, sizeString(o));
       break;
     }
 #if LUA_VERSION_NUM == 503
