@@ -13,6 +13,7 @@
 #include <lobject.h>
 #include <lfunc.h>
 #include <lstring.h>
+#include "ljdetect/ljdetect.h"
 
 
 #if LUA_VERSION_NUM == 501
@@ -212,6 +213,8 @@ int luaopen_getsize(lua_State* L)
       tableNode = tableNodeB;
   }
 #endif
+  if (isluajit(L))
+    luaL_error(L, "LuaJIT is not supported by getsize");
   lua_settop(L, 0);
   lua_getglobal(L, "debug");
   lua_createtable(L, 0, 0); /* to get dummynode pointer */
