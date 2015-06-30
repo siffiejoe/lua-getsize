@@ -78,7 +78,7 @@ static int debug_getsize(lua_State *L)
    */
   {
     extern size_t sizeTableB(Table const*, Node const*);
-    if( LUA_VERSION_RELEASE[0] < '4' )
+    if (LUA_VERSION_RELEASE[0] < '4')
       sizeTable = sizeTableB;
   }
 #endif
@@ -89,7 +89,7 @@ static int debug_getsize(lua_State *L)
    */
   {
     extern size_t sizeStringB(TValue const*);
-    if( LUA_VERSION_RELEASE[0] < '1' )
+    if (LUA_VERSION_RELEASE[0] < '1')
       sizeString = sizeStringB;
   }
 #endif
@@ -209,7 +209,7 @@ int luaopen_getsize(lua_State* L)
    */
   {
     extern Node *tableNodeB(Table const*);
-    if( LUA_VERSION_RELEASE[0] < '4' )
+    if (LUA_VERSION_RELEASE[0] < '4')
       tableNode = tableNodeB;
   }
 #endif
