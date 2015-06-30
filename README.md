@@ -16,6 +16,7 @@ changes to the original lua-getsize code:
 *   ported to Lua 5.2 and Lua 5.3
 *   fixed sizes of tables with empty hash part
 *   report a userdata's full memory not just its payload
+*   detect LuaJIT and raise an error
 *   additional option argument for counting shared internal objects
     like Lua upvalues and/or proto objects.
     "p" will count proto objects, "P" will _not_ count proto objects
