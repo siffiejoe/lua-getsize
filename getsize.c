@@ -47,6 +47,24 @@ static Node *tableNodeA(Table const *h) {
   return h->node;
 }
 
+typedef size_t (*sizeThreadFunc)(lua_State const*);
+static size_t sizeThreadA(lua_State const* th)
+{
+#if LUA_VERSION_NUM == 501
+  return sizeof(lua_State) + sizeof(TValue) * th->stacksize +
+                             sizeof(CallInfo) * th->size_ci;
+#elif LUA_VERSION_NUM == 502
+  CallInfo *ci = th->base_ci.next;
+  size_t cisize = 0;
+  for (; ci != NULL; ci = ci->next)
+    cisize += sizeof(CallInfo);
+  return sizeof(lua_State) + sizeof(TValue) * th->stacksize + cisize;
+#elif LUA_VERSION_NUM == 503 /* actually 5.3.2+ */
+  return sizeof(lua_State) + sizeof(TValue) * th->stacksize +
+                             sizeof(CallInfo) * th->nci;
+#endif
+}
+
 
 
 static size_t sizeProto(Proto const *p)
@@ -71,15 +89,16 @@ static int debug_getsize(lua_State *L)
   size_t i = 0;
   sizeTableFunc sizeTable = sizeTableA;
   sizeStringFunc sizeString = sizeStringA;
+  sizeThreadFunc sizeThread = sizeThreadA;
 #if LUA_VERSION_NUM == 502
   /* Lua 5.2.4 changed the layout of Tables, and we don't have a way
    * to check the release number from the C preprocessor, so we need
    * some hackery to select the correct object layout for tables.
    */
   {
-    extern size_t sizeTableB(Table const*, Node const*);
+    extern size_t sizeTable_520_523(Table const*, Node const*);
     if (LUA_VERSION_RELEASE[0] < '4')
-      sizeTable = sizeTableB;
+      sizeTable = sizeTable_520_523;
   }
 #endif
 #if LUA_VERSION_NUM == 503
@@ -88,9 +107,14 @@ static int debug_getsize(lua_State *L)
    * some hackery to select the correct object layout for strings.
    */
   {
-    extern size_t sizeStringB(TValue const*);
+    extern size_t sizeString_530(TValue const*);
     if (LUA_VERSION_RELEASE[0] < '1')
-      sizeString = sizeStringB;
+      sizeString = sizeString_530;
+  }
+  {
+    extern size_t sizeThread_530_531(lua_State const*);
+    if (LUA_VERSION_RELEASE[0] < '2')
+      sizeThread = sizeThread_530_531;
   }
 #endif
   for (i = 0; i < olen; ++i) {
@@ -140,26 +164,10 @@ static int debug_getsize(lua_State *L)
       break;
     }
 #endif
-#if LUA_VERSION_NUM == 501
     case LUA_TTHREAD: {
-      lua_State *th = thvalue(o);
-      lua_pushinteger(L, sizeof(lua_State) + sizeof(TValue) * th->stacksize +
-                         sizeof(CallInfo) * th->size_ci);
+      lua_pushinteger(L, sizeThread(thvalue(o)));
       break;
     }
-#elif LUA_VERSION_NUM == 502 || \
-      LUA_VERSION_NUM == 503
-    case LUA_TTHREAD: {
-      lua_State *th = thvalue(o);
-      CallInfo *ci = th->base_ci.next;
-      size_t cisize = 0;
-      for (; ci != NULL; ci = ci->next)
-        cisize += sizeof(CallInfo);
-      lua_pushinteger(L, sizeof(lua_State) + sizeof(TValue) * th->stacksize +
-                         cisize);
-      break;
-    }
-#endif
     case LUA_TUSERDATA: {
       lua_pushinteger(L, sizeudata(uvalue(o)));
       break;
@@ -208,9 +216,9 @@ int luaopen_getsize(lua_State* L)
    * some hackery to select the correct object layout for tables.
    */
   {
-    extern Node *tableNodeB(Table const*);
+    extern Node *tableNode_520_523(Table const*);
     if (LUA_VERSION_RELEASE[0] < '4')
-      tableNode = tableNodeB;
+      tableNode = tableNode_520_523;
   }
 #endif
   if (isluajit(L))

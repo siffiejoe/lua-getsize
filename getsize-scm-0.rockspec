@@ -30,6 +30,7 @@ build = {
         "getsize_multi.c",
         "layout523.c",
         "layout530.c",
+        "layout531.c",
       },
       incdirs = {
         "dummy"

@@ -8,7 +8,7 @@
 #  include "lua5.3/lobject530.h"
 #  include "lua5.3/lstring530.h"
 
-size_t sizeStringB(TValue const* v)
+size_t sizeString_530(TValue const* v)
 {
   return sizestring(tsvalue(v));
 }
