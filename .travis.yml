@@ -37,6 +37,6 @@ install:
 
 # build (and test?) the project
 script:
-  - luarocks make CFLAGS="-Wall -Wextra -O2"
+  - luarocks make CFLAGS="-Wall -Wextra -O2 -fPIC"
   - lua tests/test.lua
 
