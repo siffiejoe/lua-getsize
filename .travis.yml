@@ -3,6 +3,9 @@ language: c
 # select container based VM (no sudo available)
 sudo: false
 
+# use gcc as the C compiler
+compiler: gcc
+
 # specify operating systems to test on (linux and/or osx)
 os:
   - linux
@@ -37,6 +40,5 @@ install:
 
 # build (and test?) the project
 script:
-  - luarocks make CFLAGS="-Wall -Wextra -O2 -fPIC"
-  - lua tests/test.lua
+  - luarocks make CFLAGS="-Wall -Wextra -O2 -fPIC" && lua tests/test.lua
 
