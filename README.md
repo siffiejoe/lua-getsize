@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/siffiejoe/lua-getsize.svg?branch=master)](https://travis-ci.org/siffiejoe/lua-getsize)
+
 #                             lua-getsize                            #
 
 This is a bundle of Matthew Wild's lua-getsize module with the
@@ -22,6 +24,4 @@ changes to the original lua-getsize code:
     "p" will count proto objects, "P" will _not_ count proto objects
     (the default), "u" will count Lua upvalues (the default), and "U"
     will _not_ count Lua upvalues. You can combine those options.
-
-[![Build Status](https://travis-ci.org/siffiejoe/lua-getsize.svg?branch=master)](https://travis-ci.org/siffiejoe/lua-getsize)
 
