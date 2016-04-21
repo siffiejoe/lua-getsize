@@ -12,8 +12,11 @@ Node *tableNode_520_523(Table const *h)
   return h->node;
 }
 
-size_t sizeTable_520_523(Table const *h, Node const *dummynode)
+size_t sizeTable_520_523(Table const *h, Node const *dummynode,
+                         unsigned* narr, unsigned* nrec)
 {
+  *narr = h->sizearray;
+  *nrec = (h->node == dummynode ? 0 : sizenode(h));
   return sizeof(Table) + sizeof(TValue) * h->sizearray +
          sizeof(Node) * (h->node == dummynode ? 0 : sizenode(h));
 }

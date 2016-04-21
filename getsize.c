@@ -35,9 +35,13 @@ static size_t sizeStringA(TValue const* v)
 #endif
 }
 
-typedef size_t (*sizeTableFunc)(Table const*, Node const*);
-static size_t sizeTableA(Table const *h, Node const *dummynode)
+typedef size_t (*sizeTableFunc)(Table const*, Node const*,
+                                unsigned*, unsigned*);
+static size_t sizeTableA(Table const *h, Node const *dummynode,
+                               unsigned* narr, unsigned* nrec)
 {
+  *narr = h->sizearray;
+  *nrec = (h->node == dummynode ? 0 : sizenode(h));
   return sizeof(Table) + sizeof(TValue) * h->sizearray +
          sizeof(Node) * (h->node == dummynode ? 0 : sizenode(h));
 }
@@ -96,7 +100,8 @@ static int debug_getsize(lua_State *L)
    * some hackery to select the correct object layout for tables.
    */
   {
-    extern size_t sizeTable_520_523(Table const*, Node const*);
+    extern size_t sizeTable_520_523(Table const*, Node const*,
+                                    unsigned*, unsigned*);
     if (LUA_VERSION_RELEASE[0] < '4')
       sizeTable = sizeTable_520_523;
   }
@@ -131,8 +136,12 @@ static int debug_getsize(lua_State *L)
   switch (ttype(o)) {
     case LUA_TTABLE: {
       Table *h = hvalue(o);
-      lua_pushinteger(L, sizeTable(h, dummynode));
-      break;
+      unsigned narr = 0;
+      unsigned nrec = 0;
+      lua_pushinteger(L, sizeTable(h, dummynode, &narr, &nrec));
+      lua_pushinteger(L, narr);
+      lua_pushinteger(L, nrec);
+      return 3;
     }
 #if LUA_VERSION_NUM == 501
     case LUA_TFUNCTION: {
@@ -143,7 +152,7 @@ static int debug_getsize(lua_State *L)
         lua_pushinteger(L, sizeLclosure(cl->l.nupvalues) +
                            (count_upvalues ? cl->l.nupvalues * sizeof(UpVal) : 0) +
                            (count_protos ? sizeProto(cl->l.p) : 0));
-      break;
+      return 1;
     }
 #elif LUA_VERSION_NUM == 502 || \
       LUA_VERSION_NUM == 503
@@ -152,29 +161,29 @@ static int debug_getsize(lua_State *L)
       lua_pushinteger(L, sizeLclosure(cl->l.nupvalues) +
                          (count_upvalues ? cl->l.nupvalues * sizeof(UpVal) : 0) +
                          (count_protos ? sizeProto(cl->l.p) : 0));
-      break;
+      return 1;
     }
     case LUA_TLCF: { /* light C function */
       lua_pushinteger(L, sizeof(lua_CFunction));
-      break;
+      return 1;
     }
     case LUA_TCCL: { /* C closure */
       Closure *cl = clvalue(o);
       lua_pushinteger(L, sizeCclosure(cl->c.nupvalues));
-      break;
+      return 1;
     }
 #endif
     case LUA_TTHREAD: {
       lua_pushinteger(L, sizeThread(thvalue(o)));
-      break;
+      return 1;
     }
     case LUA_TUSERDATA: {
       lua_pushinteger(L, sizeudata(uvalue(o)));
-      break;
+      return 1;
     }
     case LUA_TLIGHTUSERDATA: {
       lua_pushinteger(L, sizeof(void*));
-      break;
+      return 1;
     }
 #if LUA_VERSION_NUM == 502 || \
     LUA_VERSION_NUM == 503
@@ -182,29 +191,28 @@ static int debug_getsize(lua_State *L)
 #endif
     case LUA_TSTRING: {
       lua_pushinteger(L, sizeString(o));
-      break;
+      return 1;
     }
 #if LUA_VERSION_NUM == 503
     case LUA_TNUMINT: {
       lua_pushinteger(L, sizeof(lua_Integer));
-      break;
+      return 1;
     }
 #endif
     case LUA_TNUMBER: {
       lua_pushinteger(L, sizeof(lua_Number));
-      break;
+      return 1;
     }
     case LUA_TBOOLEAN: {
       lua_pushinteger(L, sizeof(int));
-      break;
+      return 1;
     }
     case LUA_TNIL: {
       lua_pushinteger(L, 0);
-      break;
+      return 1;
     }
-    default: return 0;
   }
-  return 1;
+  return 0;
 }
 
 int luaopen_getsize(lua_State* L)
