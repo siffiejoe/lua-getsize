@@ -1,7 +1,7 @@
 #!/usr/bin/lua
 
 local maj,min = assert( _VERSION:match( "(%d+)%.(%d+)$" ) )
-package.cpath = "../?-"..maj..min..".so;"..package.cpath
+package.cpath = "./?.so;../?-"..maj..min..".so;"..package.cpath
 local size = require( "getsize" )
 local dummy
 

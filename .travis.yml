@@ -25,6 +25,7 @@ env:
     - LUA=5.3.1
     - LUA=5.3.2
     - LUA=5.3.3
+    - LUA=5.3.4
 
 # only test changes to the master branch
 branches:
