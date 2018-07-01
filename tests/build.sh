@@ -18,7 +18,7 @@ x() {
 }
 
 build() {
-  x gcc -Wall -O2 -fpic -I"tests/lua-${v}" -shared -o "tests/lua-${v}/getsize.so" \
+  x gcc -Wall -Wextra -O2 -fpic -I"tests/lua-${v}" -shared -o "tests/lua-${v}/getsize.so" \
     getsize.c compat.c compat_*.c
 }
 

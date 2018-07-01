@@ -116,7 +116,7 @@ void compat_init(lua_State* L) {
     unsupported(L);
 #define DEFINE_FUNC(_func, _array) \
   do { \
-    if (minor >= sizeof((_array))/sizeof(*(_array)) || (_array)[minor] == 0) \
+    if ((size_t)minor >= sizeof((_array))/sizeof(*(_array)) || (_array)[minor] == 0) \
       unsupported(L); \
     _func = (_array)[minor]; \
   } while (0)
