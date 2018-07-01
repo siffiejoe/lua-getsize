@@ -1,5 +1,5 @@
 /*
-** $Id: lobject.h,v 2.117 2016/08/01 19:51:24 roberto Exp $
+** $Id: lobject.h,v 2.106 2015/01/05 13:52:37 roberto Exp $
 ** Type definitions for Lua objects
 ** See Copyright Notice in lua.h
 */
@@ -19,8 +19,8 @@
 /*
 ** Extra tags for non-values
 */
-#define LUA_TPROTO	LUA_NUMTAGS		/* function prototypes */
-#define LUA_TDEADKEY	(LUA_NUMTAGS+1)		/* removed keys in tables */
+#define LUA_TPROTO	LUA_NUMTAGS
+#define LUA_TDEADKEY	(LUA_NUMTAGS+1)
 
 /*
 ** number of all possible tags (including LUA_TNONE but excluding DEADKEY)
@@ -34,6 +34,8 @@
 ** bits 4-5: variant bits
 ** bit 6: whether value is collectable
 */
+
+#define VARBITS		(3 << 4)
 
 
 /*
@@ -88,32 +90,22 @@ struct GCObject {
 
 
 
+/*
+** Union of all Lua values
+*/
+typedef union Value Value;
+
+
+
 
 /*
 ** Tagged Values. This is the basic representation of values in Lua,
 ** an actual value plus a tag with its type.
 */
 
-/*
-** Union of all Lua values
-*/
-typedef union Value {
-  GCObject *gc;    /* collectable objects */
-  void *p;         /* light userdata */
-  int b;           /* booleans */
-  lua_CFunction f; /* light C functions */
-  lua_Integer i;   /* integer numbers */
-  lua_Number n;    /* float numbers */
-} Value;
-
-
 #define TValuefields	Value value_; int tt_
 
-
-typedef struct lua_TValue {
-  TValuefields;
-} TValue;
-
+typedef struct lua_TValue TValue;
 
 
 /* macro defining a nil value */
@@ -187,9 +179,9 @@ typedef struct lua_TValue {
 /* Macros for internal tests */
 #define righttt(obj)		(ttype(obj) == gcvalue(obj)->tt)
 
-#define checkliveness(L,obj) \
+#define checkliveness(g,obj) \
 	lua_longassert(!iscollectable(obj) || \
-		(righttt(obj) && (L == NULL || !isdead(G(L),gcvalue(obj)))))
+			(righttt(obj) && !isdead(g,gcvalue(obj))))
 
 
 /* Macros to set values */
@@ -198,14 +190,8 @@ typedef struct lua_TValue {
 #define setfltvalue(obj,x) \
   { TValue *io=(obj); val_(io).n=(x); settt_(io, LUA_TNUMFLT); }
 
-#define chgfltvalue(obj,x) \
-  { TValue *io=(obj); lua_assert(ttisfloat(io)); val_(io).n=(x); }
-
 #define setivalue(obj,x) \
   { TValue *io=(obj); val_(io).i=(x); settt_(io, LUA_TNUMINT); }
-
-#define chgivalue(obj,x) \
-  { TValue *io=(obj); lua_assert(ttisinteger(io)); val_(io).i=(x); }
 
 #define setnilvalue(obj) settt_(obj, LUA_TNIL)
 
@@ -225,32 +211,32 @@ typedef struct lua_TValue {
 #define setsvalue(L,obj,x) \
   { TValue *io = (obj); TString *x_ = (x); \
     val_(io).gc = obj2gco(x_); settt_(io, ctb(x_->tt)); \
-    checkliveness(L,io); }
+    checkliveness(G(L),io); }
 
 #define setuvalue(L,obj,x) \
   { TValue *io = (obj); Udata *x_ = (x); \
     val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_TUSERDATA)); \
-    checkliveness(L,io); }
+    checkliveness(G(L),io); }
 
 #define setthvalue(L,obj,x) \
   { TValue *io = (obj); lua_State *x_ = (x); \
     val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_TTHREAD)); \
-    checkliveness(L,io); }
+    checkliveness(G(L),io); }
 
 #define setclLvalue(L,obj,x) \
   { TValue *io = (obj); LClosure *x_ = (x); \
     val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_TLCL)); \
-    checkliveness(L,io); }
+    checkliveness(G(L),io); }
 
 #define setclCvalue(L,obj,x) \
   { TValue *io = (obj); CClosure *x_ = (x); \
     val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_TCCL)); \
-    checkliveness(L,io); }
+    checkliveness(G(L),io); }
 
 #define sethvalue(L,obj,x) \
   { TValue *io = (obj); Table *x_ = (x); \
     val_(io).gc = obj2gco(x_); settt_(io, ctb(LUA_TTABLE)); \
-    checkliveness(L,io); }
+    checkliveness(G(L),io); }
 
 #define setdeadvalue(obj)	settt_(obj, LUA_TDEADKEY)
 
@@ -258,7 +244,7 @@ typedef struct lua_TValue {
 
 #define setobj(L,obj1,obj2) \
 	{ TValue *io1=(obj1); *io1 = *(obj2); \
-	  (void)L; checkliveness(L,io1); }
+	  (void)L; checkliveness(G(L),io1); }
 
 
 /*
@@ -274,12 +260,11 @@ typedef struct lua_TValue {
 #define setptvalue2s	setptvalue
 /* from table to same table */
 #define setobjt2t	setobj
+/* to table */
+#define setobj2t	setobj
 /* to new object */
 #define setobj2n	setobj
 #define setsvalue2n	setsvalue
-
-/* to table (define it as an expression to be used in macros) */
-#define setobj2t(L,o1,o2)  ((void)L, *(o1)=*(o2), checkliveness(L,(o1)))
 
 
 
@@ -289,6 +274,21 @@ typedef struct lua_TValue {
 ** types and prototypes
 ** =======================================================
 */
+
+
+union Value {
+  GCObject *gc;    /* collectable objects */
+  void *p;         /* light userdata */
+  int b;           /* booleans */
+  lua_CFunction f; /* light C functions */
+  lua_Integer i;   /* integer numbers */
+  lua_Number n;    /* float numbers */
+};
+
+
+struct lua_TValue {
+  TValuefields;
+};
 
 
 typedef TValue *StkId;  /* index to stack elements */
@@ -303,12 +303,9 @@ typedef TValue *StkId;  /* index to stack elements */
 typedef struct TString {
   CommonHeader;
   lu_byte extra;  /* reserved words for short strings; "has hash" for longs */
-  lu_byte shrlen;  /* length for short strings */
   unsigned int hash;
-  union {
-    size_t lnglen;  /* length for long strings */
-    struct TString *hnext;  /* linked list for hash table */
-  } u;
+  size_t len;  /* number of characters in string */
+  struct TString *hnext;  /* linked list for hash table */
 } TString;
 
 
@@ -325,18 +322,12 @@ typedef union UTString {
 ** Get the actual string (array of bytes) from a 'TString'.
 ** (Access to 'extra' ensures that value is really a 'TString'.)
 */
+#define getaddrstr(ts)	(cast(char *, (ts)) + sizeof(UTString))
 #define getstr(ts)  \
-  check_exp(sizeof((ts)->extra), cast(char *, (ts)) + sizeof(UTString))
-
+  check_exp(sizeof((ts)->extra), cast(const char*, getaddrstr(ts)))
 
 /* get the actual string (array of bytes) from a Lua value */
 #define svalue(o)       getstr(tsvalue(o))
-
-/* get string length from 'TString *s' */
-#define tsslen(s)	((s)->tt == LUA_TSHRSTR ? (s)->shrlen : (s)->u.lnglen)
-
-/* get string length from 'TValue *o' */
-#define vslen(o)	tsslen(tsvalue(o))
 
 
 /*
@@ -370,14 +361,14 @@ typedef union UUdata {
 
 #define setuservalue(L,u,o) \
 	{ const TValue *io=(o); Udata *iu = (u); \
-	  iu->user_ = io->value_; iu->ttuv_ = rttype(io); \
-	  checkliveness(L,io); }
+	  iu->user_ = io->value_; iu->ttuv_ = io->tt_; \
+	  checkliveness(G(L),io); }
 
 
 #define getuservalue(L,u,o) \
 	{ TValue *io=(o); const Udata *iu = (u); \
-	  io->value_ = iu->user_; settt_(io, iu->ttuv_); \
-	  checkliveness(L,io); }
+	  io->value_ = iu->user_; io->tt_ = iu->ttuv_; \
+	  checkliveness(G(L),io); }
 
 
 /*
@@ -385,7 +376,7 @@ typedef union UUdata {
 */
 typedef struct Upvaldesc {
   TString *name;  /* upvalue name (for debug information) */
-  lu_byte instack;  /* whether it is in stack (register) */
+  lu_byte instack;  /* whether it is in stack */
   lu_byte idx;  /* index of upvalue (in stack or in outer function's list) */
 } Upvaldesc;
 
@@ -408,22 +399,22 @@ typedef struct Proto {
   CommonHeader;
   lu_byte numparams;  /* number of fixed parameters */
   lu_byte is_vararg;
-  lu_byte maxstacksize;  /* number of registers needed by this function */
+  lu_byte maxstacksize;  /* maximum stack used by this function */
   int sizeupvalues;  /* size of 'upvalues' */
   int sizek;  /* size of 'k' */
   int sizecode;
   int sizelineinfo;
   int sizep;  /* size of 'p' */
   int sizelocvars;
-  int linedefined;  /* debug information  */
-  int lastlinedefined;  /* debug information  */
+  int linedefined;
+  int lastlinedefined;
   TValue *k;  /* constants used by the function */
-  Instruction *code;  /* opcodes */
+  Instruction *code;
   struct Proto **p;  /* functions defined inside the function */
   int *lineinfo;  /* map from opcodes to source lines (debug information) */
   LocVar *locvars;  /* information about local variables (debug information) */
   Upvaldesc *upvalues;  /* upvalue information */
-  struct LClosure *cache;  /* last-created closure with this prototype */
+  struct LClosure *cache;  /* last created closure with this prototype */
   TString  *source;  /* used for debug information */
   GCObject *gclist;
 } Proto;
@@ -485,7 +476,7 @@ typedef union TKey {
 #define setnodekey(L,key,obj) \
 	{ TKey *k_=(key); const TValue *io_=(obj); \
 	  k_->nk.value_ = io_->value_; k_->nk.tt_ = io_->tt_; \
-	  (void)L; checkliveness(L,io_); }
+	  (void)L; checkliveness(G(L),io_); }
 
 
 typedef struct Node {

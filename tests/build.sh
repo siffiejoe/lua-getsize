@@ -18,8 +18,8 @@ x() {
 }
 
 build() {
-  x gcc -Wall -O2 -fpic -Idummy -I"tests/lua-${v}" -shared -o "tests/lua-${v}/getsize.so" \
-    getsize_multi.c layout523.c layout530.c layout531.c
+  x gcc -Wall -O2 -fpic -I"tests/lua-${v}" -shared -o "tests/lua-${v}/getsize.so" \
+    getsize.c compat.c compat_*.c
 }
 
 for v in "${LUA_VERSIONS[@]}"; do

@@ -7,67 +7,39 @@
 
 #include <stdio.h>
 
+#define LUA_CORE
 #include <lua.h>
-#include <lauxlib.h>
-#include <lstate.h>
-#include <lobject.h>
-#include <lfunc.h>
-#include <lstring.h>
-#include "ljdetect/ljdetect.h"
+#if LUA_VERSION_NUM == 503
 
+#include "lua5.3/lobject.h"
+#include "lua5.3/lstate.h"
+#include "lua5.3/lstring.h"
+#include "lua5.3/lfunc.h"
 
-#if LUA_VERSION_NUM == 501
-#define ARG(L, n) (((L)->base+(n))-1)
-#elif LUA_VERSION_NUM == 502 || \
-      LUA_VERSION_NUM == 503
-#define ARG(L, n) ((L)->ci->func+(n))
-#endif
-
-
-typedef size_t (*sizeStringFunc)(TValue const*);
-static size_t sizeStringA(TValue const* v)
-{
-#if LUA_VERSION_NUM == 501 || \
-    LUA_VERSION_NUM == 502
-  return sizestring(tsvalue(v));
-#elif LUA_VERSION_NUM == 503 /* actually 5.3.1+ */
-  return sizelstring(tsslen(tsvalue(v)));
-#endif
-}
-
-typedef size_t (*sizeTableFunc)(Table const*, Node const*,
-                                unsigned*, unsigned*);
-static size_t sizeTableA(Table const *h, Node const *dummynode,
-                               unsigned* narr, unsigned* nrec)
-{
-  *narr = h->sizearray;
-  *nrec = (h->node == dummynode ? 0 : sizenode(h));
-  return sizeof(Table) + sizeof(TValue) * h->sizearray +
-         sizeof(Node) * (h->node == dummynode ? 0 : sizenode(h));
-}
-
-typedef Node *(*tableNodeFunc)(Table const*);
-static Node *tableNodeA(Table const *h) {
-  return h->node;
-}
-
-typedef size_t (*sizeThreadFunc)(lua_State const*);
-static size_t sizeThreadA(lua_State const* th)
-{
-#if LUA_VERSION_NUM == 501
-  return sizeof(lua_State) + sizeof(TValue) * th->stacksize +
-                             sizeof(CallInfo) * th->size_ci;
 #elif LUA_VERSION_NUM == 502
-  CallInfo *ci = th->base_ci.next;
-  size_t cisize = 0;
-  for (; ci != NULL; ci = ci->next)
-    cisize += sizeof(CallInfo);
-  return sizeof(lua_State) + sizeof(TValue) * th->stacksize + cisize;
-#elif LUA_VERSION_NUM == 503 /* actually 5.3.2+ */
-  return sizeof(lua_State) + sizeof(TValue) * th->stacksize +
-                             sizeof(CallInfo) * th->nci;
+
+#include "lua5.2/lobject.h"
+#include "lua5.2/lstate.h"
+#include "lua5.2/lstring.h"
+#include "lua5.2/lfunc.h"
+
+#elif LUA_VERSION_NUM == 501
+
+#include "lua5.1/lobject.h"
+#include "lua5.1/lstate.h"
+#include "lua5.1/lstring.h"
+#include "lua5.1/lfunc.h"
+
+#else
+
+#error unsupported Lua version for getsize
+
 #endif
-}
+
+#undef LUA_CORE
+#include <lauxlib.h>
+#include "ljdetect/ljdetect.h"
+#include "compat.h"
 
 
 
@@ -85,43 +57,12 @@ static size_t sizeProto(Proto const *p)
 static int debug_getsize(lua_State *L)
 {
   Node const *dummynode = lua_touserdata(L, lua_upvalueindex(1));
-  TValue *o = ARG(L, 1);
+  TValue *o = getArg(L, 1);
   size_t olen = 0;
   char const *options = luaL_optlstring(L, 2, "", &olen);
   int count_upvalues = 1;
   int count_protos = 0;
   size_t i = 0;
-  sizeTableFunc sizeTable = sizeTableA;
-  sizeStringFunc sizeString = sizeStringA;
-  sizeThreadFunc sizeThread = sizeThreadA;
-#if LUA_VERSION_NUM == 502
-  /* Lua 5.2.4 changed the layout of Tables, and we don't have a way
-   * to check the release number from the C preprocessor, so we need
-   * some hackery to select the correct object layout for tables.
-   */
-  {
-    extern size_t sizeTable_520_523(Table const*, Node const*,
-                                    unsigned*, unsigned*);
-    if (LUA_VERSION_RELEASE[0] < '4')
-      sizeTable = sizeTable_520_523;
-  }
-#endif
-#if LUA_VERSION_NUM == 503
-  /* Lua 5.3.1 changed the layout of Strings, and we don't have a way
-   * to check the release number from the C preprocessor, so we need
-   * some hackery to select the correct object layout for strings.
-   */
-  {
-    extern size_t sizeString_530(TValue const*);
-    if (LUA_VERSION_RELEASE[0] < '1')
-      sizeString = sizeString_530;
-  }
-  {
-    extern size_t sizeThread_530_531(lua_State const*);
-    if (LUA_VERSION_RELEASE[0] < '2')
-      sizeThread = sizeThread_530_531;
-  }
-#endif
   for (i = 0; i < olen; ++i) {
     switch (options[i]) {
       case 'p': count_protos = 1; break;
@@ -154,8 +95,8 @@ static int debug_getsize(lua_State *L)
                            (count_protos ? sizeProto(cl->l.p) : 0));
       return 1;
     }
-#elif LUA_VERSION_NUM == 502 || \
-      LUA_VERSION_NUM == 503
+#endif
+#ifdef LUA_TLCL
     case LUA_TLCL: { /* Lua closure */
       Closure *cl = clvalue(o);
       lua_pushinteger(L, sizeLclosure(cl->l.nupvalues) +
@@ -163,10 +104,14 @@ static int debug_getsize(lua_State *L)
                          (count_protos ? sizeProto(cl->l.p) : 0));
       return 1;
     }
+#endif
+#ifdef LUA_TLCF
     case LUA_TLCF: { /* light C function */
       lua_pushinteger(L, sizeof(lua_CFunction));
       return 1;
     }
+#endif
+#ifdef LUA_TCCL
     case LUA_TCCL: { /* C closure */
       Closure *cl = clvalue(o);
       lua_pushinteger(L, sizeCclosure(cl->c.nupvalues));
@@ -185,15 +130,14 @@ static int debug_getsize(lua_State *L)
       lua_pushinteger(L, sizeof(void*));
       return 1;
     }
-#if LUA_VERSION_NUM == 502 || \
-    LUA_VERSION_NUM == 503
+#ifdef LUA_TLNGSTR
     case LUA_TLNGSTR: /* fall through */
 #endif
     case LUA_TSTRING: {
       lua_pushinteger(L, sizeString(o));
       return 1;
     }
-#if LUA_VERSION_NUM == 503
+#ifdef LUA_TNUMINT
     case LUA_TNUMINT: {
       lua_pushinteger(L, sizeof(lua_Integer));
       return 1;
@@ -215,26 +159,16 @@ static int debug_getsize(lua_State *L)
   return 0;
 }
 
+
 int luaopen_getsize(lua_State* L)
 {
-  tableNodeFunc tableNode = tableNodeA;
-#if LUA_VERSION_NUM == 502
-  /* Lua 5.2.4 changed the layout of Tables, and we don't have a way
-   * to check the release number from the C preprocessor, so we need
-   * some hackery to select the correct object layout for tables.
-   */
-  {
-    extern Node *tableNode_520_523(Table const*);
-    if (LUA_VERSION_RELEASE[0] < '4')
-      tableNode = tableNode_520_523;
-  }
-#endif
   if (isluajit(L))
     luaL_error(L, "LuaJIT is not supported by getsize");
+  compat_init(L);
   lua_settop(L, 0);
   lua_getglobal(L, "debug");
   lua_createtable(L, 0, 0); /* to get dummynode pointer */
-  lua_pushlightuserdata(L, tableNode(hvalue(ARG(L,2))));
+  lua_pushlightuserdata(L, tableNode(hvalue((TValue*)getArg(L,2))));
   lua_pushcclosure(L, debug_getsize, 1);
   lua_replace(L, -2); /* remove dummy table */
   if (lua_type(L, 1) == LUA_TTABLE) {

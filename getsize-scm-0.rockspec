@@ -27,13 +27,14 @@ build = {
   modules = {
     getsize = {
       sources = {
-        "getsize_multi.c",
-        "layout523.c",
-        "layout530.c",
-        "layout531.c",
-      },
-      incdirs = {
-        "dummy"
+        "getsize.c",
+        "compat.c",
+        "compat_50103.c",
+        "compat_50200.c",
+        "compat_50300.c",
+        "compat_50204.c",
+        "compat_50301.c",
+        "compat_50302.c",
       }
     }
   }
