@@ -13,7 +13,7 @@ static GetArgFunction const getArgFuncs[] = {
 #elif LUA_VERSION_NUM == 502
   getArg_50200, getArg_50200, getArg_50200, getArg_50200, getArg_50200
 #elif LUA_VERSION_NUM == 503
-  getArg_50300, getArg_50300, getArg_50300, getArg_50300, getArg_50300
+  getArg_50300, getArg_50300, getArg_50300, getArg_50300, getArg_50300, getArg_50300
 #else
 #error unsupported Lua version
 #endif
@@ -32,7 +32,7 @@ static StringSizeFunction const stringSizeFuncs[] = {
 #elif LUA_VERSION_NUM == 502
   sizeString_50200, sizeString_50200, sizeString_50200, sizeString_50200, sizeString_50200
 #elif LUA_VERSION_NUM == 503
-  sizeString_50300, sizeString_50301, sizeString_50301, sizeString_50301, sizeString_50301
+  sizeString_50300, sizeString_50301, sizeString_50301, sizeString_50301, sizeString_50301, sizeString_50301
 #else
 #error unsupported Lua version
 #endif
@@ -51,7 +51,7 @@ static TableNodeFunction const tableNodeFuncs[] = {
 #elif LUA_VERSION_NUM == 502
   tableNode_50200, tableNode_50200, tableNode_50200, tableNode_50200, tableNode_50204
 #elif LUA_VERSION_NUM == 503
-  tableNode_50300, tableNode_50300, tableNode_50300, tableNode_50300, tableNode_50300
+  tableNode_50300, tableNode_50300, tableNode_50300, tableNode_50300, tableNode_50300, tableNode_50300
 #else
 #error unsupported Lua version
 #endif
@@ -70,7 +70,7 @@ static TableSizeFunction const tableSizeFuncs[] = {
 #elif LUA_VERSION_NUM == 502
   sizeTable_50200, sizeTable_50200, sizeTable_50200, sizeTable_50200, sizeTable_50204
 #elif LUA_VERSION_NUM == 503
-  sizeTable_50300, sizeTable_50300, sizeTable_50300, sizeTable_50300, sizeTable_50300
+  sizeTable_50300, sizeTable_50300, sizeTable_50300, sizeTable_50300, sizeTable_50300, sizeTable_50300
 #else
 #error unsupported Lua version
 #endif
@@ -89,7 +89,7 @@ static ThreadSizeFunction const threadSizeFuncs[] = {
 #elif LUA_VERSION_NUM == 502
   sizeThread_50200, sizeThread_50200, sizeThread_50200, sizeThread_50200, sizeThread_50200
 #elif LUA_VERSION_NUM == 503
-  sizeThread_50300, sizeThread_50300, sizeThread_50302, sizeThread_50302, sizeThread_50302
+  sizeThread_50300, sizeThread_50300, sizeThread_50302, sizeThread_50302, sizeThread_50302, sizeThread_50302
 #else
 #error unsupported Lua version
 #endif
