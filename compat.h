@@ -13,15 +13,16 @@ typedef size_t (*TableSizeFunction)(/* Table */ void const*,
                                     unsigned* nrec);
 typedef size_t (*ThreadSizeFunction)(lua_State const* th);
 
+typedef struct {
+  GetArgFunction getArg;
+  StringSizeFunction sizeString;
+  TableNodeFunction tableNode;
+  TableSizeFunction sizeTable;
+  ThreadSizeFunction sizeThread;
+} GetSizeVTable;
 
-extern GetArgFunction getArg;
-extern StringSizeFunction sizeString;
-extern TableNodeFunction tableNode;
-extern TableSizeFunction sizeTable;
-extern ThreadSizeFunction sizeThread;
 
-
-void compat_init(lua_State* L);
+GetSizeVTable* compat_init(lua_State* L);
 
 
 #endif /* GETSIZE_COMPAT_H_ */

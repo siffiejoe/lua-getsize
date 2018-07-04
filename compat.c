@@ -97,20 +97,14 @@ static ThreadSizeFunction const threadSizeFuncs[] = {
 
 
 
-GetArgFunction getArg;
-StringSizeFunction sizeString;
-TableNodeFunction tableNode;
-TableSizeFunction sizeTable;
-ThreadSizeFunction sizeThread;
-
-
 static void unsupported(lua_State* L) {
   lua_pushliteral(L, "getsize does not support this Lua (minor) version");
   lua_error(L);
 }
 
 
-void compat_init(lua_State* L) {
+GetSizeVTable* compat_init(lua_State* L) {
+  GetSizeVTable* vtable = lua_newuserdata(L, sizeof(*vtable));
   int minor = atoi(LUA_RELEASE+sizeof(LUA_VERSION));
   if (minor < 0)
     unsupported(L);
@@ -118,7 +112,7 @@ void compat_init(lua_State* L) {
   do { \
     if ((size_t)minor >= sizeof((_array))/sizeof(*(_array)) || (_array)[minor] == 0) \
       unsupported(L); \
-    _func = (_array)[minor]; \
+    vtable->_func = (_array)[minor]; \
   } while (0)
 
   DEFINE_FUNC(getArg, getArgFuncs);
@@ -127,5 +121,6 @@ void compat_init(lua_State* L) {
   DEFINE_FUNC(sizeTable, tableSizeFuncs);
   DEFINE_FUNC(sizeThread, threadSizeFuncs);
 #undef DEFINE_FUNC
+  return vtable;
 }
 

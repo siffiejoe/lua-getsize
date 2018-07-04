@@ -56,8 +56,9 @@ static size_t sizeProto(Proto const *p)
 
 static int debug_getsize(lua_State *L)
 {
-  Node const *dummynode = lua_touserdata(L, lua_upvalueindex(1));
-  TValue *o = getArg(L, 1);
+  GetSizeVTable* vtable = lua_touserdata(L, lua_upvalueindex(1));
+  Node const *dummynode = lua_touserdata(L, lua_upvalueindex(2));
+  TValue *o = vtable->getArg(L, 1);
   size_t olen = 0;
   char const *options = luaL_optlstring(L, 2, "", &olen);
   int count_upvalues = 1;
@@ -79,7 +80,7 @@ static int debug_getsize(lua_State *L)
       Table *h = hvalue(o);
       unsigned narr = 0;
       unsigned nrec = 0;
-      lua_pushinteger(L, sizeTable(h, dummynode, &narr, &nrec));
+      lua_pushinteger(L, vtable->sizeTable(h, dummynode, &narr, &nrec));
       lua_pushinteger(L, narr);
       lua_pushinteger(L, nrec);
       return 3;
@@ -119,7 +120,7 @@ static int debug_getsize(lua_State *L)
     }
 #endif
     case LUA_TTHREAD: {
-      lua_pushinteger(L, sizeThread(thvalue(o)));
+      lua_pushinteger(L, vtable->sizeThread(thvalue(o)));
       return 1;
     }
     case LUA_TUSERDATA: {
@@ -134,7 +135,7 @@ static int debug_getsize(lua_State *L)
     case LUA_TLNGSTR: /* fall through */
 #endif
     case LUA_TSTRING: {
-      lua_pushinteger(L, sizeString(o));
+      lua_pushinteger(L, vtable->sizeString(o));
       return 1;
     }
 #ifdef LUA_TNUMINT
@@ -162,15 +163,15 @@ static int debug_getsize(lua_State *L)
 
 int luaopen_getsize(lua_State* L)
 {
+  GetSizeVTable* vtable = NULL;
   if (isluajit(L))
     luaL_error(L, "LuaJIT is not supported by getsize");
-  compat_init(L);
   lua_settop(L, 0);
   lua_getglobal(L, "debug");
   lua_createtable(L, 0, 0); /* to get dummynode pointer */
-  lua_pushlightuserdata(L, tableNode(hvalue((TValue*)getArg(L,2))));
-  lua_pushcclosure(L, debug_getsize, 1);
-  lua_replace(L, -2); /* remove dummy table */
+  vtable = compat_init(L);
+  lua_pushlightuserdata(L, vtable->tableNode(hvalue((TValue*)vtable->getArg(L, 2))));
+  lua_pushcclosure(L, debug_getsize, 2);
   if (lua_type(L, 1) == LUA_TTABLE) {
     lua_pushvalue(L, -1);
     lua_setfield(L, 1, "getsize");
