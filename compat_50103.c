@@ -15,6 +15,12 @@ void* getArg_50103(lua_State* L, int n) {
 }
 
 
+int getType_50103(void const* v) {
+  TValue const* o = v;
+  return ttype(o);
+}
+
+
 size_t sizeString_50103(void const* s) {
   TValue const* v = s;
   return sizestring(tsvalue(v));
@@ -22,23 +28,30 @@ size_t sizeString_50103(void const* s) {
 
 
 void* tableNode_50103(void const* t) {
-  Table const* h = t;
-  return h->node;
+  TValue const* h = t;
+  return hvalue(h)->node;
 }
 
 
 size_t sizeTable_50103(void const* t, void const* n,
                        unsigned* narr, unsigned* nrec) {
-  Table const* h = t;
+  Table const* h = hvalue((TValue const*)t);
   Node const* dummynode = n;
   *narr = h->sizearray;
   *nrec = (h->node == dummynode ? 0 : sizenode(h));
-  return sizeof(Table) + sizeof(TValue) * h->sizearray +
+  return sizeof(Table) + sizeof(TValue) * *narr +
          sizeof(Node) * *nrec;
 }
 
 
-size_t sizeThread_50103(lua_State const* th) {
+size_t sizeUserdata_50103(void const* u) {
+  TValue const* v = u;
+  return sizeudata(uvalue(v));
+}
+
+
+size_t sizeThread_50103(void const* v) {
+  lua_State const* th = thvalue((TValue const*)v);
   return sizeof(lua_State) + sizeof(TValue) * th->stacksize +
                              sizeof(CallInfo) * th->size_ci;
 }

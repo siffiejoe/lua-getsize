@@ -9,7 +9,14 @@
 
 #define LUA_CORE
 #include <lua.h>
-#if LUA_VERSION_NUM == 503
+#if LUA_VERSION_NUM == 504
+
+#include "lua5.4/lobject.h"
+#include "lua5.4/lstate.h"
+#include "lua5.4/lstring.h"
+#include "lua5.4/lfunc.h"
+
+#elif LUA_VERSION_NUM == 503
 
 #include "lua5.3/lobject.h"
 #include "lua5.3/lstate.h"
@@ -75,12 +82,11 @@ static int debug_getsize(lua_State *L)
         break;
     }
   }
-  switch (ttype(o)) {
+  switch (vtable->getType(o)) {
     case LUA_TTABLE: {
-      Table *h = hvalue(o);
       unsigned narr = 0;
       unsigned nrec = 0;
-      lua_pushinteger(L, vtable->sizeTable(h, dummynode, &narr, &nrec));
+      lua_pushinteger(L, vtable->sizeTable(o, dummynode, &narr, &nrec));
       lua_pushinteger(L, narr);
       lua_pushinteger(L, nrec);
       return 3;
@@ -120,11 +126,11 @@ static int debug_getsize(lua_State *L)
     }
 #endif
     case LUA_TTHREAD: {
-      lua_pushinteger(L, vtable->sizeThread(thvalue(o)));
+      lua_pushinteger(L, vtable->sizeThread(o));
       return 1;
     }
     case LUA_TUSERDATA: {
-      lua_pushinteger(L, sizeudata(uvalue(o)));
+      lua_pushinteger(L, vtable->sizeUserdata(o));
       return 1;
     }
     case LUA_TLIGHTUSERDATA: {
@@ -134,7 +140,11 @@ static int debug_getsize(lua_State *L)
 #ifdef LUA_TLNGSTR
     case LUA_TLNGSTR: /* fall through */
 #endif
+#ifdef LUA_TSHRSTR
+    case LUA_TSHRSTR: {
+#else
     case LUA_TSTRING: {
+#endif
       lua_pushinteger(L, vtable->sizeString(o));
       return 1;
     }
@@ -144,7 +154,11 @@ static int debug_getsize(lua_State *L)
       return 1;
     }
 #endif
+#ifdef LUA_TNUMFLT
+    case LUA_TNUMFLT: {
+#else
     case LUA_TNUMBER: {
+#endif
       lua_pushinteger(L, sizeof(lua_Number));
       return 1;
     }
@@ -170,7 +184,7 @@ int luaopen_getsize(lua_State* L)
   lua_getglobal(L, "debug");
   lua_createtable(L, 0, 0); /* to get dummynode pointer */
   vtable = compat_init(L);
-  lua_pushlightuserdata(L, vtable->tableNode(hvalue((TValue*)vtable->getArg(L, 2))));
+  lua_pushlightuserdata(L, vtable->tableNode(vtable->getArg(L, 2)));
   lua_pushcclosure(L, debug_getsize, 2);
   if (lua_type(L, 1) == LUA_TTABLE) {
     lua_pushvalue(L, -1);

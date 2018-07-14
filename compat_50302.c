@@ -7,7 +7,8 @@
 #include "lua5.3/2/lstate.h"
 
 
-size_t sizeThread_50302(lua_State const* th) {
+size_t sizeThread_50302(void const* v) {
+  lua_State const* th = thvalue((TValue const*)v);
   return sizeof(lua_State) + sizeof(TValue) * th->stacksize +
                              sizeof(CallInfo) * th->nci;
 }
