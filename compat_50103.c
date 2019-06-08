@@ -15,15 +15,37 @@ void* getArg_50103(lua_State* L, int n) {
 }
 
 
-int getType_50103(void const* v) {
-  TValue const* o = v;
-  return ttype(o);
+size_t sizeNumber_50103(void const* n) {
+  (void)n;
+  return sizeof(lua_Number);
 }
 
 
 size_t sizeString_50103(void const* s) {
   TValue const* v = s;
   return sizestring(tsvalue(v));
+}
+
+
+static size_t sizeProto(Proto const* p)
+{
+  return sizeof(Proto) + sizeof(Instruction) * p->sizecode +
+                         sizeof(Proto*) * p->sizep +
+                         sizeof(TValue) * p->sizek +
+                         sizeof(int) * p->sizelineinfo +
+                         sizeof(LocVar) * p->sizelocvars +
+                         sizeof(*(p->upvalues)) * p->sizeupvalues;
+}
+
+size_t sizeFunction_50103(void const* v, int count_protos, int count_upvalues) {
+  TValue const* o = v;
+  Closure *cl = clvalue(o);
+  if (cl->c.isC)
+    return sizeCclosure(cl->c.nupvalues);
+  else
+    return sizeLclosure(cl->l.nupvalues) +
+           (count_upvalues ? cl->l.nupvalues * sizeof(UpVal) : 0) +
+           (count_protos ? sizeProto(cl->l.p) : 0);
 }
 
 

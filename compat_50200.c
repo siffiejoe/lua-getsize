@@ -15,15 +15,43 @@ void* getArg_50200(lua_State* L, int n) {
 }
 
 
-int getType_50200(void const* v) {
-  TValue const* o = v;
-  return ttype(o);
+size_t sizeNumber_50200(void const* n) {
+  (void)n;
+  return sizeof(lua_Number);
 }
 
 
 size_t sizeString_50200(void const* s) {
   TValue const* v = s;
   return sizestring(tsvalue(v));
+}
+
+
+static size_t sizeProto(Proto const* p) {
+  return sizeof(Proto) + sizeof(Instruction) * p->sizecode +
+                         sizeof(Proto*) * p->sizep +
+                         sizeof(TValue) * p->sizek +
+                         sizeof(int) * p->sizelineinfo +
+                         sizeof(LocVar) * p->sizelocvars +
+                         sizeof(*(p->upvalues)) * p->sizeupvalues;
+}
+
+size_t sizeFunction_50200(void const* v, int count_protos, int count_upvalues) {
+  TValue const* o = v;
+  switch (ttype(o)) {
+    case LUA_TLCL: /* Lua closure */
+    {
+      Closure *cl = clvalue(o);
+      return sizeLclosure(cl->l.nupvalues) +
+             (count_upvalues ? cl->l.nupvalues * sizeof(UpVal) : 0) +
+             (count_protos ? sizeProto(cl->l.p) : 0);
+    }
+    case LUA_TLCF: /* light C function */
+      return sizeof(lua_CFunction);
+    case LUA_TCCL: /* C closure */
+      return sizeCclosure(clvalue(o)->c.nupvalues);
+  }
+  return 0;
 }
 
 

@@ -5,8 +5,9 @@
 
 
 typedef /* TValue */ void* (*GetArgFunction)(lua_State*, int);
-typedef int (*GetTypeFunction)(/* TValue */ void const*);
+typedef size_t (*NumberSizeFunction)(/* TValue */ void const*);
 typedef size_t (*StringSizeFunction)(/* TValue */ void const*);
+typedef size_t (*FunctionSizeFunction)(/* TValue */ void const*, int, int);
 typedef /* Node */ void* (*TableNodeFunction)(/* TValue */ void const*);
 typedef size_t (*TableSizeFunction)(/* TValue */ void const*,
                                     /* Node */ void const*,
@@ -17,8 +18,9 @@ typedef size_t (*ThreadSizeFunction)(/* TValue */ void const*);
 
 typedef struct {
   GetArgFunction getArg;
-  GetTypeFunction getType;
+  NumberSizeFunction sizeNumber;
   StringSizeFunction sizeString;
+  FunctionSizeFunction sizeFunction;
   TableNodeFunction tableNode;
   TableSizeFunction sizeTable;
   UserdataSizeFunction sizeUserdata;

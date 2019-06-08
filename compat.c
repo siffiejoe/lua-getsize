@@ -24,20 +24,20 @@ static GetArgFunction const getArgFuncs[] = {
 
 
 
-extern int getType_50103(void const*);
-extern int getType_50200(void const*);
-extern int getType_50300(void const*);
-extern int getType_50400(void const*);
+extern size_t sizeNumber_50103(void const*);
+extern size_t sizeNumber_50200(void const*);
+extern size_t sizeNumber_50300(void const*);
+extern size_t sizeNumber_50400(void const*);
 
-static GetTypeFunction const getTypeFuncs[] = {
+static NumberSizeFunction const numberSizeFuncs[] = {
 #if LUA_VERSION_NUM == 501
-  0, 0, 0, getType_50103, getType_50103, getType_50103
+  0, 0, 0, sizeNumber_50103, sizeNumber_50103, sizeNumber_50103
 #elif LUA_VERSION_NUM == 502
-  getType_50200, getType_50200, getType_50200, getType_50200, getType_50200
+  sizeNumber_50200, sizeNumber_50200, sizeNumber_50200, sizeNumber_50200, sizeNumber_50200
 #elif LUA_VERSION_NUM == 503
-  getType_50300, getType_50300, getType_50300, getType_50300, getType_50300, getType_50300
+  sizeNumber_50300, sizeNumber_50300, sizeNumber_50300, sizeNumber_50300, sizeNumber_50300, sizeNumber_50300
 #elif LUA_VERSION_NUM == 504
-  getType_50400
+  sizeNumber_50400
 #else
 #error unsupported Lua version
 #endif
@@ -60,6 +60,26 @@ static StringSizeFunction const stringSizeFuncs[] = {
   sizeString_50300, sizeString_50301, sizeString_50301, sizeString_50301, sizeString_50301, sizeString_50301
 #elif LUA_VERSION_NUM == 504
   sizeString_50400
+#else
+#error unsupported Lua version
+#endif
+};
+
+
+
+extern size_t sizeFunction_50103(void const*, int, int);
+extern size_t sizeFunction_50200(void const*, int, int);
+extern size_t sizeFunction_50300(void const*, int, int);
+extern size_t sizeFunction_50400(void const*, int, int);
+static FunctionSizeFunction const functionSizeFuncs[] = {
+#if LUA_VERSION_NUM == 501
+  0, 0, 0, sizeFunction_50103, sizeFunction_50103, sizeFunction_50103
+#elif LUA_VERSION_NUM == 502
+  sizeFunction_50200, sizeFunction_50200, sizeFunction_50200, sizeFunction_50200, sizeFunction_50200
+#elif LUA_VERSION_NUM == 503
+  sizeFunction_50300, sizeFunction_50300, sizeFunction_50300, sizeFunction_50300, sizeFunction_50300, sizeFunction_50300
+#elif LUA_VERSION_NUM == 504
+  sizeFunction_50400
 #else
 #error unsupported Lua version
 #endif
@@ -173,8 +193,9 @@ GetSizeVTable* compat_init(lua_State* L) {
   } while (0)
 
   DEFINE_FUNC(getArg, getArgFuncs);
-  DEFINE_FUNC(getType, getTypeFuncs);
+  DEFINE_FUNC(sizeNumber, numberSizeFuncs);
   DEFINE_FUNC(sizeString, stringSizeFuncs);
+  DEFINE_FUNC(sizeFunction, functionSizeFuncs);
   DEFINE_FUNC(tableNode, tableNodeFuncs);
   DEFINE_FUNC(sizeTable, tableSizeFuncs);
   DEFINE_FUNC(sizeUserdata, userdataSizeFuncs);
