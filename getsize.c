@@ -12,10 +12,10 @@
 #include "compat.h"
 
 
-static int debug_getsize(lua_State *L)
+static int debug_getsize(lua_State* L)
 {
-  GetSizeVTable* vtable = lua_touserdata(L, lua_upvalueindex(1));
-  /* TValue */ void const* o = vtable->getArg(L, 1);
+  GetSizeVTable const* const vtable = lua_touserdata(L, lua_upvalueindex(1));
+  /* TValue */ void const* const o = vtable->getArg(L, 1);
   size_t olen = 0;
   char const* options = luaL_optlstring(L, 2, "", &olen);
   int count_upvalues = 1;
@@ -60,7 +60,7 @@ static int debug_getsize(lua_State *L)
     }
     case LUA_TTABLE:
     {
-      /* Node */ void const* dummynode = lua_touserdata(L, lua_upvalueindex(2));
+      /* Node */ void const* const dummynode = lua_touserdata(L, lua_upvalueindex(2));
       unsigned narr = 0;
       unsigned nrec = 0;
       lua_pushinteger(L, vtable->sizeTable(o, dummynode, &narr, &nrec));
@@ -90,7 +90,7 @@ static int debug_getsize(lua_State *L)
 
 int luaopen_getsize(lua_State* L)
 {
-  GetSizeVTable* vtable = NULL;
+  GetSizeVTable const* vtable = NULL;
   if (isluajit(L))
     luaL_error(L, "LuaJIT is not supported by getsize");
   lua_settop(L, 0);

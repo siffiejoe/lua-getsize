@@ -2,7 +2,6 @@
 
 
 #if LUA_VERSION_NUM == 501
-#include "compat.h"
 #define LUA_CORE
 #include "lua5.1/lstate.h"
 #include "lua5.1/lobject.h"
@@ -15,14 +14,14 @@ void* getArg_50103(lua_State* L, int n) {
 }
 
 
-size_t sizeNumber_50103(void const* n) {
-  (void)n;
+size_t sizeNumber_50103(void const* o) {
+  (void)o;
   return sizeof(lua_Number);
 }
 
 
-size_t sizeString_50103(void const* s) {
-  TValue const* v = s;
+size_t sizeString_50103(void const* o) {
+  TValue const* v = o;
   return sizestring(tsvalue(v));
 }
 
@@ -37,9 +36,9 @@ static size_t sizeProto(Proto const* p)
                          sizeof(*(p->upvalues)) * p->sizeupvalues;
 }
 
-size_t sizeFunction_50103(void const* v, int count_protos, int count_upvalues) {
-  TValue const* o = v;
-  Closure *cl = clvalue(o);
+size_t sizeFunction_50103(void const* o, int count_protos, int count_upvalues) {
+  TValue const* v = o;
+  Closure *cl = clvalue(v);
   if (cl->c.isC)
     return sizeCclosure(cl->c.nupvalues);
   else
@@ -49,15 +48,15 @@ size_t sizeFunction_50103(void const* v, int count_protos, int count_upvalues) {
 }
 
 
-void* tableNode_50103(void const* t) {
-  TValue const* h = t;
+void* tableNode_50103(void const* o) {
+  TValue const* h = o;
   return hvalue(h)->node;
 }
 
 
-size_t sizeTable_50103(void const* t, void const* n,
+size_t sizeTable_50103(void const* o, void const* n,
                        unsigned* narr, unsigned* nrec) {
-  Table const* h = hvalue((TValue const*)t);
+  Table const* h = hvalue((TValue const*)o);
   Node const* dummynode = n;
   *narr = h->sizearray;
   *nrec = (h->node == dummynode ? 0 : sizenode(h));
@@ -66,14 +65,14 @@ size_t sizeTable_50103(void const* t, void const* n,
 }
 
 
-size_t sizeUserdata_50103(void const* u) {
-  TValue const* v = u;
+size_t sizeUserdata_50103(void const* o) {
+  TValue const* v = o;
   return sizeudata(uvalue(v));
 }
 
 
-size_t sizeThread_50103(void const* v) {
-  lua_State const* th = thvalue((TValue const*)v);
+size_t sizeThread_50103(void const* o) {
+  lua_State const* th = thvalue((TValue const*)o);
   return sizeof(lua_State) + sizeof(TValue) * th->stacksize +
                              sizeof(CallInfo) * th->size_ci;
 }
