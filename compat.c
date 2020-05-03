@@ -24,6 +24,27 @@ static GetArgFunction const getArgFuncs[] = {
 
 
 
+extern size_t sizeBoolean_50103(void const*);
+extern size_t sizeBoolean_50200(void const*);
+extern size_t sizeBoolean_50300(void const*);
+extern size_t sizeBoolean_50400(void const*);
+
+static BooleanSizeFunction const booleanSizeFuncs[] = {
+#if LUA_VERSION_NUM == 501
+  0, 0, 0, sizeBoolean_50103, sizeBoolean_50103, sizeBoolean_50103
+#elif LUA_VERSION_NUM == 502
+  sizeBoolean_50200, sizeBoolean_50200, sizeBoolean_50200, sizeBoolean_50200, sizeBoolean_50200
+#elif LUA_VERSION_NUM == 503
+  sizeBoolean_50300, sizeBoolean_50300, sizeBoolean_50300, sizeBoolean_50300, sizeBoolean_50300, sizeBoolean_50300
+#elif LUA_VERSION_NUM == 504
+  sizeBoolean_50400
+#else
+#error unsupported Lua version
+#endif
+};
+
+
+
 extern size_t sizeNumber_50103(void const*);
 extern size_t sizeNumber_50200(void const*);
 extern size_t sizeNumber_50300(void const*);
@@ -193,6 +214,7 @@ GetSizeVTable* compat_init(lua_State* L) {
   } while (0)
 
   DEFINE_FUNC(getArg, getArgFuncs);
+  DEFINE_FUNC(sizeBoolean, booleanSizeFuncs);
   DEFINE_FUNC(sizeNumber, numberSizeFuncs);
   DEFINE_FUNC(sizeString, stringSizeFuncs);
   DEFINE_FUNC(sizeFunction, functionSizeFuncs);

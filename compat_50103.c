@@ -14,6 +14,12 @@ void* getArg_50103(lua_State* L, int n) {
 }
 
 
+size_t sizeBoolean_50103(void const* o) {
+  (void)o;
+  return sizeof(int);
+}
+
+
 size_t sizeNumber_50103(void const* o) {
   (void)o;
   return sizeof(lua_Number);

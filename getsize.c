@@ -40,7 +40,7 @@ static int debug_getsize(lua_State* L)
     }
     case LUA_TBOOLEAN:
     {
-      lua_pushinteger(L, sizeof(int));
+      lua_pushinteger(L, vtable->sizeBoolean(o));
       return 1;
     }
     case LUA_TLIGHTUSERDATA:

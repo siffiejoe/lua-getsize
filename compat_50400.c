@@ -14,9 +14,15 @@ void* getArg_50400(lua_State* L, int n) {
 }
 
 
+size_t sizeBoolean_50400(void const* o) {
+  (void)o;
+  return 0;
+}
+
+
 size_t sizeNumber_50400(void const* o) {
   TValue const* v = o;
-  if (ttypetag(v) == LUA_TNUMINT)
+  if (ttypetag(v) == LUA_VNUMINT)
     return sizeof(lua_Integer);
   else
     return sizeof(lua_Number);
@@ -42,16 +48,16 @@ static size_t sizeProto(Proto const* p)
 size_t sizeFunction_50400(void const* o, int count_protos, int count_upvalues) {
   TValue const* v = o;
   switch (ttypetag(v)) {
-    case LUA_TLCL: /* Lua closure */
+    case LUA_VLCL: /* Lua closure */
     {
       Closure *cl = clvalue(v);
       return sizeLclosure(cl->l.nupvalues) +
              (count_upvalues ? cl->l.nupvalues * sizeof(UpVal) : 0) +
              (count_protos ? sizeProto(cl->l.p) : 0);
     }
-    case LUA_TLCF: /* light C function */
+    case LUA_VLCF: /* light C function */
       return sizeof(lua_CFunction);
-    case LUA_TCCL: /* C closure */
+    case LUA_VCCL: /* C closure */
       return sizeCclosure(clvalue(v)->c.nupvalues);
   }
   return 0;
