@@ -195,13 +195,15 @@ static ThreadSizeFunction const threadSizeFuncs[] = {
 
 
 
-static void unsupported(lua_State* L) {
+static void unsupported(lua_State* L)
+{
   lua_pushliteral(L, "getsize does not support this Lua (minor) version");
   lua_error(L);
 }
 
 
-GetSizeVTable* compat_init(lua_State* L) {
+GetSizeVTable* compat_init(lua_State* L)
+{
   GetSizeVTable* vtable = lua_newuserdata(L, sizeof(*vtable));
   int minor = atoi(LUA_RELEASE+sizeof(LUA_VERSION));
   if (minor < 0)

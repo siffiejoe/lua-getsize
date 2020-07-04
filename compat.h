@@ -17,7 +17,8 @@ typedef size_t (*TableSizeFunction)(/* TValue */ void const*,
 typedef size_t (*UserdataSizeFunction)(/* TValue */ void const*);
 typedef size_t (*ThreadSizeFunction)(/* TValue */ void const*);
 
-typedef struct {
+typedef struct
+{
   GetArgFunction getArg;
   BooleanSizeFunction sizeBoolean;
   NumberSizeFunction sizeNumber;

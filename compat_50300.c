@@ -9,18 +9,21 @@
 #include "lua5.3/lstring.h"
 
 
-void* getArg_50300(lua_State* L, int n) {
+void* getArg_50300(lua_State* L, int n)
+{
   return L->ci->func+n;
 }
 
 
-size_t sizeBoolean_50300(void const* o) {
+size_t sizeBoolean_50300(void const* o)
+{
   (void)o;
   return sizeof(int);
 }
 
 
-size_t sizeNumber_50300(void const* o) {
+size_t sizeNumber_50300(void const* o)
+{
   TValue const* v = o;
   if (ttype(v) == LUA_TNUMINT)
     return sizeof(lua_Integer);
@@ -29,7 +32,8 @@ size_t sizeNumber_50300(void const* o) {
 }
 
 
-size_t sizeString_50300(void const* o) {
+size_t sizeString_50300(void const* o)
+{
   TValue const* v = o;
   return sizestring(tsvalue(v));
 }
@@ -47,9 +51,11 @@ static size_t sizeProto(Proto const* p)
 }
 
 
-size_t sizeFunction_50300(void const* o, int count_protos, int count_upvalues) {
+size_t sizeFunction_50300(void const* o, int count_protos, int count_upvalues)
+{
   TValue const* v = o;
-  switch (ttype(v)) {
+  switch (ttype(v))
+  {
     case LUA_TLCL: /* Lua closure */
     {
       Closure *cl = clvalue(v);
@@ -66,14 +72,16 @@ size_t sizeFunction_50300(void const* o, int count_protos, int count_upvalues) {
 }
 
 
-void* tableNode_50300(void const* o) {
+void* tableNode_50300(void const* o)
+{
   TValue const* h = o;
   return hvalue(h)->node;
 }
 
 
 size_t sizeTable_50300(void const* o, void const* n,
-                       unsigned* narr, unsigned* nrec) {
+                       unsigned* narr, unsigned* nrec)
+{
   Table const* h = hvalue((TValue const*)o);
   Node const* dummynode = n;
   *narr = h->sizearray;
@@ -83,13 +91,15 @@ size_t sizeTable_50300(void const* o, void const* n,
 }
 
 
-size_t sizeUserdata_50300(void const* o) {
+size_t sizeUserdata_50300(void const* o)
+{
   TValue const* v = o;
   return sizeudata(uvalue(v));
 }
 
 
-size_t sizeThread_50300(void const* o) {
+size_t sizeThread_50300(void const* o)
+{
   lua_State const* th = thvalue((TValue const*)o);
   CallInfo *ci = th->base_ci.next;
   size_t cisize = 0;

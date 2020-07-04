@@ -21,8 +21,10 @@ static int debug_getsize(lua_State* L)
   int count_upvalues = 1;
   int count_protos = 0;
   size_t i = 0;
-  for (i = 0; i < olen; ++i) {
-    switch (options[i]) {
+  for (i = 0; i < olen; ++i)
+  {
+    switch (options[i])
+    {
       case 'p': count_protos = 1; break;
       case 'P': count_protos = 0; break;
       case 'u': count_upvalues = 1; break;
@@ -32,7 +34,8 @@ static int debug_getsize(lua_State* L)
         break;
     }
   }
-  switch (lua_type(L, 1)) {
+  switch (lua_type(L, 1))
+  {
     case LUA_TNIL:
     {
       lua_pushinteger(L, 0);
@@ -99,7 +102,8 @@ int luaopen_getsize(lua_State* L)
   vtable = compat_init(L);
   lua_pushlightuserdata(L, vtable->tableNode(vtable->getArg(L, 2)));
   lua_pushcclosure(L, debug_getsize, 2);
-  if (lua_type(L, 1) == LUA_TTABLE) {
+  if (lua_type(L, 1) == LUA_TTABLE)
+  {
     lua_pushvalue(L, -1);
     lua_setfield(L, 1, "getsize");
   }

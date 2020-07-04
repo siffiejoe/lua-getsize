@@ -9,18 +9,21 @@
 #include "lua5.4/lstring.h"
 
 
-void* getArg_50400(lua_State* L, int n) {
+void* getArg_50400(lua_State* L, int n)
+{
   return L->ci->func+n;
 }
 
 
-size_t sizeBoolean_50400(void const* o) {
+size_t sizeBoolean_50400(void const* o)
+{
   (void)o;
   return 0;
 }
 
 
-size_t sizeNumber_50400(void const* o) {
+size_t sizeNumber_50400(void const* o)
+{
   TValue const* v = o;
   if (ttypetag(v) == LUA_VNUMINT)
     return sizeof(lua_Integer);
@@ -29,7 +32,8 @@ size_t sizeNumber_50400(void const* o) {
 }
 
 
-size_t sizeString_50400(void const* o) {
+size_t sizeString_50400(void const* o)
+{
   TValue const* v = o;
   return sizelstring(vslen(v));
 }
@@ -45,9 +49,11 @@ static size_t sizeProto(Proto const* p)
                          sizeof(*(p->upvalues)) * p->sizeupvalues;
 }
 
-size_t sizeFunction_50400(void const* o, int count_protos, int count_upvalues) {
+size_t sizeFunction_50400(void const* o, int count_protos, int count_upvalues)
+{
   TValue const* v = o;
-  switch (ttypetag(v)) {
+  switch (ttypetag(v))
+  {
     case LUA_VLCL: /* Lua closure */
     {
       Closure *cl = clvalue(v);
@@ -64,14 +70,16 @@ size_t sizeFunction_50400(void const* o, int count_protos, int count_upvalues) {
 }
 
 
-void* tableNode_50400(void const* o) {
+void* tableNode_50400(void const* o)
+{
   TValue const* h = o;
   return hvalue(h)->node;
 }
 
 
 size_t sizeTable_50400(void const* o, void const* n,
-                       unsigned* narr, unsigned* nrec) {
+                       unsigned* narr, unsigned* nrec)
+{
   Table const* h = hvalue((TValue const*)o);
   Node const* dummynode = n;
   *narr = h->alimit;
@@ -81,13 +89,15 @@ size_t sizeTable_50400(void const* o, void const* n,
 }
 
 
-size_t sizeUserdata_50400(void const* o) {
+size_t sizeUserdata_50400(void const* o)
+{
   TValue const* v = o;
   return sizeudata(uvalue(v)->nuvalue, uvalue(v)->len);
 }
 
 
-size_t sizeThread_50400(void const* o) {
+size_t sizeThread_50400(void const* o)
+{
   lua_State const* th = thvalue((TValue const*)o);
   CallInfo *ci = th->base_ci.next;
   size_t cisize = 0;

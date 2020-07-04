@@ -7,14 +7,16 @@
 #include "lua5.2/lstate.h"
 
 
-void* tableNode_50204(void const* o) {
+void* tableNode_50204(void const* o)
+{
   TValue const* h = o;
   return hvalue(h)->node;
 }
 
 
 size_t sizeTable_50204(void const* o, void const* n,
-                       unsigned* narr, unsigned* nrec) {
+                       unsigned* narr, unsigned* nrec)
+{
   Table const* h = hvalue((TValue const*)o);
   Node const* dummynode = n;
   *narr = h->sizearray;

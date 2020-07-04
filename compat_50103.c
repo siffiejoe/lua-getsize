@@ -9,24 +9,28 @@
 #include "lua5.1/lstring.h"
 
 
-void* getArg_50103(lua_State* L, int n) {
+void* getArg_50103(lua_State* L, int n)
+{
   return L->base + n - 1;
 }
 
 
-size_t sizeBoolean_50103(void const* o) {
+size_t sizeBoolean_50103(void const* o)
+{
   (void)o;
   return sizeof(int);
 }
 
 
-size_t sizeNumber_50103(void const* o) {
+size_t sizeNumber_50103(void const* o)
+{
   (void)o;
   return sizeof(lua_Number);
 }
 
 
-size_t sizeString_50103(void const* o) {
+size_t sizeString_50103(void const* o)
+{
   TValue const* v = o;
   return sizestring(tsvalue(v));
 }
@@ -42,7 +46,8 @@ static size_t sizeProto(Proto const* p)
                          sizeof(*(p->upvalues)) * p->sizeupvalues;
 }
 
-size_t sizeFunction_50103(void const* o, int count_protos, int count_upvalues) {
+size_t sizeFunction_50103(void const* o, int count_protos, int count_upvalues)
+{
   TValue const* v = o;
   Closure *cl = clvalue(v);
   if (cl->c.isC)
@@ -54,14 +59,16 @@ size_t sizeFunction_50103(void const* o, int count_protos, int count_upvalues) {
 }
 
 
-void* tableNode_50103(void const* o) {
+void* tableNode_50103(void const* o)
+{
   TValue const* h = o;
   return hvalue(h)->node;
 }
 
 
 size_t sizeTable_50103(void const* o, void const* n,
-                       unsigned* narr, unsigned* nrec) {
+                       unsigned* narr, unsigned* nrec)
+{
   Table const* h = hvalue((TValue const*)o);
   Node const* dummynode = n;
   *narr = h->sizearray;
@@ -71,13 +78,15 @@ size_t sizeTable_50103(void const* o, void const* n,
 }
 
 
-size_t sizeUserdata_50103(void const* o) {
+size_t sizeUserdata_50103(void const* o)
+{
   TValue const* v = o;
   return sizeudata(uvalue(v));
 }
 
 
-size_t sizeThread_50103(void const* o) {
+size_t sizeThread_50103(void const* o)
+{
   lua_State const* th = thvalue((TValue const*)o);
   return sizeof(lua_State) + sizeof(TValue) * th->stacksize +
                              sizeof(CallInfo) * th->size_ci;

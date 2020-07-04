@@ -7,7 +7,8 @@
 #include "lua5.3/1/lstring.h"
 
 
-size_t sizeString_50301(void const* o) {
+size_t sizeString_50301(void const* o)
+{
   TValue const* v = o;
   return sizelstring(tsslen(tsvalue(v)));
 }

@@ -9,30 +9,35 @@
 #include "lua5.2/lstring.h"
 
 
-void* getArg_50200(lua_State* L, int n) {
+void* getArg_50200(lua_State* L, int n)
+{
   return L->ci->func+n;
 }
 
 
-size_t sizeBoolean_50200(void const* o) {
+size_t sizeBoolean_50200(void const* o)
+{
   (void)o;
   return sizeof(int);
 }
 
 
-size_t sizeNumber_50200(void const* o) {
+size_t sizeNumber_50200(void const* o)
+{
   (void)o;
   return sizeof(lua_Number);
 }
 
 
-size_t sizeString_50200(void const* o) {
+size_t sizeString_50200(void const* o)
+{
   TValue const* v = o;
   return sizestring(tsvalue(v));
 }
 
 
-static size_t sizeProto(Proto const* p) {
+static size_t sizeProto(Proto const* p)
+{
   return sizeof(Proto) + sizeof(Instruction) * p->sizecode +
                          sizeof(Proto*) * p->sizep +
                          sizeof(TValue) * p->sizek +
@@ -41,9 +46,11 @@ static size_t sizeProto(Proto const* p) {
                          sizeof(*(p->upvalues)) * p->sizeupvalues;
 }
 
-size_t sizeFunction_50200(void const* o, int count_protos, int count_upvalues) {
+size_t sizeFunction_50200(void const* o, int count_protos, int count_upvalues)
+{
   TValue const* v = o;
-  switch (ttype(v)) {
+  switch (ttype(v))
+  {
     case LUA_TLCL: /* Lua closure */
     {
       Closure *cl = clvalue(v);
@@ -60,14 +67,16 @@ size_t sizeFunction_50200(void const* o, int count_protos, int count_upvalues) {
 }
 
 
-void* tableNode_50200(void const* o) {
+void* tableNode_50200(void const* o)
+{
   TValue const* h = o;
   return hvalue(h)->node;
 }
 
 
 size_t sizeTable_50200(void const* o, void const* n,
-                       unsigned* narr, unsigned* nrec) {
+                       unsigned* narr, unsigned* nrec)
+{
   Table const* h = hvalue((TValue const*)o);
   Node const* dummynode = n;
   *narr = h->sizearray;
@@ -77,17 +86,19 @@ size_t sizeTable_50200(void const* o, void const* n,
 }
 
 
-size_t sizeUserdata_50200(void const* o) {
+size_t sizeUserdata_50200(void const* o)
+{
   TValue const* v = o;
   return sizeudata(uvalue(v));
 }
 
 
-size_t sizeThread_50200(void const* o) {
+size_t sizeThread_50200(void const* o)
+{
   lua_State const* th = thvalue((TValue const*)o);
   CallInfo* ci = th->base_ci.next;
   size_t cisize = 0;
-  for(; ci != NULL; ci = ci->next)
+  for (; ci != NULL; ci = ci->next)
     cisize += sizeof(CallInfo);
   return sizeof(lua_State) + sizeof(TValue) * th->stacksize + cisize;
 }
