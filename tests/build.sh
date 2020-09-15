@@ -3,7 +3,7 @@
 # simple bash script to download and build multiple different lua
 # versions, and compile the getsize module for each of them
 
-LUA_VERSIONS=( 5.1.4 5.1.5 5.2.2 5.2.3 5.2.4 5.3.0 5.3.1 5.3.2 5.3.3 5.3.4 5.3.5 5.4.0 )
+LUA_VERSIONS=( 5.1.4 5.1.5 5.2.2 5.2.3 5.2.4 5.3.0 5.3.1 5.3.2 5.3.3 5.3.4 5.3.5 5.3.6 5.4.0 )
 PLATFORM=linux
 
 log() {
@@ -18,7 +18,7 @@ x() {
 }
 
 build() {
-  x gcc -Wall -Wextra -O2 -fpic -I"tests/lua-${v}" -shared -o "tests/lua-${v}/getsize.so" \
+  x gcc -Wall -Wextra -O2 -fpic -I"tests/lua-$1" -shared -o "tests/lua-$1/getsize.so" \
     getsize.c compat.c compat_*.c
 }
 
