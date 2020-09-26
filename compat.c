@@ -205,8 +205,9 @@ static void unsupported(lua_State* L)
 GetSizeVTable* compat_init(lua_State* L)
 {
   GetSizeVTable* vtable = lua_newuserdata(L, sizeof(*vtable));
-  int minor = atoi(LUA_RELEASE+sizeof(LUA_VERSION));
-  if (minor < 0)
+  char* endptr = NULL;
+  long minor = strtol(LUA_RELEASE+sizeof(LUA_VERSION), &endptr, 10);
+  if (minor < 0 || *endptr != '\0')
     unsupported(L);
 #define DEFINE_FUNC(_func, _array) \
   do { \
