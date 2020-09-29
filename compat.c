@@ -92,6 +92,7 @@ extern size_t sizeFunction_50103(void const*, int, int);
 extern size_t sizeFunction_50200(void const*, int, int);
 extern size_t sizeFunction_50300(void const*, int, int);
 extern size_t sizeFunction_50400(void const*, int, int);
+
 static FunctionSizeFunction const functionSizeFuncs[] = {
 #if LUA_VERSION_NUM == 501
   0, 0, 0, sizeFunction_50103, sizeFunction_50103, sizeFunction_50103

@@ -42,12 +42,12 @@ decide whether you want to include the sizes of the proto object
 and/or the upvalues.
 
 ```lua
-print(getsize(getsize))                    # -> 64
+print(getsize(getsize))                    --> 64
 local function f() return getsize end
-print(getsize(f))                          # -> 80
-print(getsize(f, "uP"))                    # -> 80
-print(getsize(f, "up"))                    # -> 264
-print(getsize(f, "UP"))                    # -> 40
-print(getsize({ 1, 2, 3, x = 4, y = 5 })   # -> 152  3  2
+print(getsize(f))                          --> 80
+print(getsize(f, "uP"))                    --> 80
+print(getsize(f, "up"))                    --> 264
+print(getsize(f, "UP"))                    --> 40
+print(getsize({ 1, 2, 3, x = 4, y = 5 })   --> 152  3  2
 ```
 
