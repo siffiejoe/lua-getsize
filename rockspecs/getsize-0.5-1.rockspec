@@ -1,8 +1,9 @@
 package="getsize"
-version="scm-0"
+version="0.5-1"
 
 source = {
-  url = "git://github.com/siffiejoe/lua-getsize.git",
+  url = "https://github.com/siffiejoe/lua-getsize/archive/v0.5.zip",
+  dir = "lua-getsize-0.5",
 }
 
 description = {
