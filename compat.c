@@ -16,7 +16,7 @@ static GetArgFunction const getArgFuncs[] = {
 #elif LUA_VERSION_NUM == 503
   getArg_50300, getArg_50300, getArg_50300, getArg_50300, getArg_50300, getArg_50300, getArg_50300
 #elif LUA_VERSION_NUM == 504
-  getArg_50400, getArg_50400
+  getArg_50400, getArg_50400, getArg_50400
 #else
 #error unsupported Lua version
 #endif
@@ -37,7 +37,7 @@ static BooleanSizeFunction const booleanSizeFuncs[] = {
 #elif LUA_VERSION_NUM == 503
   sizeBoolean_50300, sizeBoolean_50300, sizeBoolean_50300, sizeBoolean_50300, sizeBoolean_50300, sizeBoolean_50300, sizeBoolean_50300
 #elif LUA_VERSION_NUM == 504
-  sizeBoolean_50400, sizeBoolean_50400
+  sizeBoolean_50400, sizeBoolean_50400, sizeBoolean_50400
 #else
 #error unsupported Lua version
 #endif
@@ -58,7 +58,7 @@ static NumberSizeFunction const numberSizeFuncs[] = {
 #elif LUA_VERSION_NUM == 503
   sizeNumber_50300, sizeNumber_50300, sizeNumber_50300, sizeNumber_50300, sizeNumber_50300, sizeNumber_50300, sizeNumber_50300
 #elif LUA_VERSION_NUM == 504
-  sizeNumber_50400, sizeNumber_50400
+  sizeNumber_50400, sizeNumber_50400, sizeNumber_50400
 #else
 #error unsupported Lua version
 #endif
@@ -80,7 +80,7 @@ static StringSizeFunction const stringSizeFuncs[] = {
 #elif LUA_VERSION_NUM == 503
   sizeString_50300, sizeString_50301, sizeString_50301, sizeString_50301, sizeString_50301, sizeString_50301, sizeString_50301
 #elif LUA_VERSION_NUM == 504
-  sizeString_50400, sizeString_50400
+  sizeString_50400, sizeString_50400, sizeString_50400
 #else
 #error unsupported Lua version
 #endif
@@ -101,7 +101,7 @@ static FunctionSizeFunction const functionSizeFuncs[] = {
 #elif LUA_VERSION_NUM == 503
   sizeFunction_50300, sizeFunction_50300, sizeFunction_50300, sizeFunction_50300, sizeFunction_50300, sizeFunction_50300, sizeFunction_50300
 #elif LUA_VERSION_NUM == 504
-  sizeFunction_50400, sizeFunction_50400
+  sizeFunction_50400, sizeFunction_50400, sizeFunction_50400
 #else
 #error unsupported Lua version
 #endif
@@ -123,7 +123,7 @@ static TableNodeFunction const tableNodeFuncs[] = {
 #elif LUA_VERSION_NUM == 503
   tableNode_50300, tableNode_50300, tableNode_50300, tableNode_50300, tableNode_50300, tableNode_50300, tableNode_50300
 #elif LUA_VERSION_NUM == 504
-  tableNode_50400, tableNode_50400
+  tableNode_50400, tableNode_50400, tableNode_50400
 #else
 #error unsupported Lua version
 #endif
@@ -145,7 +145,7 @@ static TableSizeFunction const tableSizeFuncs[] = {
 #elif LUA_VERSION_NUM == 503
   sizeTable_50300, sizeTable_50300, sizeTable_50300, sizeTable_50300, sizeTable_50300, sizeTable_50300, sizeTable_50300
 #elif LUA_VERSION_NUM == 504
-  sizeTable_50400, sizeTable_50400
+  sizeTable_50400, sizeTable_50400, sizeTable_50400
 #else
 #error unsupported Lua version
 #endif
@@ -166,7 +166,7 @@ static UserdataSizeFunction const userdataSizeFuncs[] = {
 #elif LUA_VERSION_NUM == 503
   sizeUserdata_50300, sizeUserdata_50300, sizeUserdata_50300, sizeUserdata_50300, sizeUserdata_50300, sizeUserdata_50300, sizeUserdata_50300
 #elif LUA_VERSION_NUM == 504
-  sizeUserdata_50400, sizeUserdata_50400
+  sizeUserdata_50400, sizeUserdata_50400, sizeUserdata_50400
 #else
 #error unsupported Lua version
 #endif
@@ -180,6 +180,7 @@ extern size_t sizeThread_50300(void const*);
 extern size_t sizeThread_50302(void const*);
 extern size_t sizeThread_50400(void const*);
 extern size_t sizeThread_50401(void const*);
+extern size_t sizeThread_50402(void const*);
 
 static ThreadSizeFunction const threadSizeFuncs[] = {
 #if LUA_VERSION_NUM == 501
@@ -189,7 +190,7 @@ static ThreadSizeFunction const threadSizeFuncs[] = {
 #elif LUA_VERSION_NUM == 503
   sizeThread_50300, sizeThread_50300, sizeThread_50302, sizeThread_50302, sizeThread_50302, sizeThread_50302, sizeThread_50302
 #elif LUA_VERSION_NUM == 504
-  sizeThread_50400, sizeThread_50401
+  sizeThread_50400, sizeThread_50401, sizeThread_50402
 #else
 #error unsupported Lua version
 #endif
