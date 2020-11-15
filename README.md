@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/siffiejoe/lua-getsize.svg?branch=master)](https://travis-ci.org/siffiejoe/lua-getsize)
+[![Test Status](https://github.com/siffiejoe/lua-getsize/workflows/run-tests/badge.svg)](https://github.com/siffiejoe/lua-getsize/actions?workflow=run-tests)
 
 #                             lua-getsize                            #
 
