@@ -30,7 +30,7 @@ static int debug_getsize(lua_State* L)
       case 'u': count_upvalues = 1; break;
       case 'U': count_upvalues = 0; break;
       default:
-        luaL_error(L, "unkown option for 'getsize': %c", (int)options[i]);
+        luaL_error(L, "unknown option for 'getsize': %c", options[i]);
         break;
     }
   }
