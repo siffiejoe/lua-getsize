@@ -1,6 +1,12 @@
-[![Test Status](https://github.com/siffiejoe/lua-getsize/workflows/run-tests/badge.svg)](https://github.com/siffiejoe/lua-getsize/actions?workflow=run-tests)
-
 #                             lua-getsize                            #
+
+[![Test Status](https://github.com/siffiejoe/lua-getsize/workflows/run-tests/badge.svg)](https://github.com/siffiejoe/lua-getsize/actions?workflow=run-tests)
+![License](https://img.shields.io/badge/License-MIT%2FX11,%20MIT-blue.svg)
+![Lua Versions](https://img.shields.io/badge/Lua-5.1%20|%205.2%20|%205.3%20|%205.4-blue.svg)
+![No LuaJIT](https://img.shields.io/badge/No-LuaJIT-red.svg)
+
+
+##                           Introduction                           ##
 
 This is a bundle of Matthew Wild's lua-getsize module with the
 necessary bits from Lua's sources (5.1, 5.2, 5.3, and 5.4) included to
@@ -26,8 +32,8 @@ changes to the original lua-getsize code:
     (the default), "u" will count Lua upvalues (the default), and "U"
     will _not_ count Lua upvalues. You can combine those options.
 
-##                          Getting Started                         ##
 
+##                          Getting Started                         ##
 
 This module exports just one function:
 
@@ -50,4 +56,3 @@ print(getsize(f, "up"))                    --> 264
 print(getsize(f, "UP"))                    --> 40
 print(getsize({ 1, 2, 3, x = 4, y = 5 })   --> 152  3  2
 ```
-
