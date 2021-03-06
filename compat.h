@@ -8,7 +8,7 @@ typedef /* TValue */ void* (*GetArgFunction)(lua_State*, int);
 typedef size_t (*BooleanSizeFunction)(/* TValue */ void const*);
 typedef size_t (*NumberSizeFunction)(/* TValue */ void const*);
 typedef size_t (*StringSizeFunction)(/* TValue */ void const*);
-typedef size_t (*FunctionSizeFunction)(/* TValue */ void const*, int, int);
+typedef size_t (*FunctionSizeFunction)(/* TValue */ void const*, int, int, int);
 typedef /* Node */ void* (*TableNodeFunction)(/* TValue */ void const*);
 typedef size_t (*TableSizeFunction)(/* TValue */ void const*,
                                     /* Node */ void const*,

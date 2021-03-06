@@ -46,10 +46,11 @@ static size_t sizeProto(Proto const* p)
                          sizeof(*(p->upvalues)) * p->sizeupvalues;
 }
 
-size_t sizeFunction_50103(void const* o, int count_protos, int count_upvalues)
+size_t sizeFunction_50103(void const* o, int count_protos, int count_upvalues, int count_values)
 {
   TValue const* v = o;
   Closure *cl = clvalue(v);
+  (void)count_values; /* unused for Lua 5.1 */
   if (cl->c.isC)
     return sizeCclosure(cl->c.nupvalues);
   else

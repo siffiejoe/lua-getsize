@@ -20,6 +20,7 @@ static int debug_getsize(lua_State* L)
   char const* options = luaL_optlstring(L, 2, "", &olen);
   int count_upvalues = 1;
   int count_protos = 0;
+  int count_values = 1;
   size_t i = 0;
   for (i = 0; i < olen; ++i)
   {
@@ -29,6 +30,8 @@ static int debug_getsize(lua_State* L)
       case 'P': count_protos = 0; break;
       case 'u': count_upvalues = 1; break;
       case 'U': count_upvalues = 0; break;
+      case 'v': count_values = 1; break;
+      case 'V': count_values = 0; break;
       default:
         luaL_error(L, "unknown option for 'getsize': %c", options[i]);
         break;
@@ -43,17 +46,17 @@ static int debug_getsize(lua_State* L)
     }
     case LUA_TBOOLEAN:
     {
-      lua_pushinteger(L, vtable->sizeBoolean(o));
+      lua_pushinteger(L, count_values ? vtable->sizeBoolean(o) : 0);
       return 1;
     }
     case LUA_TLIGHTUSERDATA:
     {
-      lua_pushinteger(L, sizeof(void*));
+      lua_pushinteger(L, count_values ? sizeof(void*) : 0);
       return 1;
     }
     case LUA_TNUMBER:
     {
-      lua_pushinteger(L, vtable->sizeNumber(o));
+      lua_pushinteger(L, count_values ? vtable->sizeNumber(o) : 0);
       return 1;
     }
     case LUA_TSTRING:
@@ -73,7 +76,7 @@ static int debug_getsize(lua_State* L)
     }
     case LUA_TFUNCTION:
     {
-      lua_pushinteger(L, vtable->sizeFunction(o, count_protos, count_upvalues));
+      lua_pushinteger(L, vtable->sizeFunction(o, count_protos, count_upvalues, count_values));
       return 1;
     }
     case LUA_TUSERDATA:

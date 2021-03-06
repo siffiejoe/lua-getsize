@@ -46,7 +46,7 @@ static size_t sizeProto(Proto const* p)
                          sizeof(*(p->upvalues)) * p->sizeupvalues;
 }
 
-size_t sizeFunction_50200(void const* o, int count_protos, int count_upvalues)
+size_t sizeFunction_50200(void const* o, int count_protos, int count_upvalues, int count_values)
 {
   TValue const* v = o;
   switch (ttype(v))
@@ -59,7 +59,7 @@ size_t sizeFunction_50200(void const* o, int count_protos, int count_upvalues)
              (count_protos ? sizeProto(cl->l.p) : 0);
     }
     case LUA_TLCF: /* light C function */
-      return sizeof(lua_CFunction);
+      return count_values ? sizeof(lua_CFunction) : 0;
     case LUA_TCCL: /* C closure */
       return sizeCclosure(clvalue(v)->c.nupvalues);
   }
