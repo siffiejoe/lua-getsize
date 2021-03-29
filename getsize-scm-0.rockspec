@@ -38,6 +38,7 @@ build = {
         "compat_50302.c",
         "compat_50401.c",
         "compat_50402.c",
+        "compat_50403.c",
       }
     }
   }
